@@ -101,5 +101,10 @@
         }
     };
     const api = new JitsiMeetExternalAPI(domain, options);
+    
+    // Redirect user automatically when they click hangup/leave
+    api.addListener('readyToClose', () => {
+        window.location.href = "{% url 'dashboard_redirect' %}";
+    });
 </script>
 {% endblock %}

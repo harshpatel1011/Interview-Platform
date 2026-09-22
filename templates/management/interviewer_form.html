@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block footer %}{% endblock %}
+{% block header_nav %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mt-10 animate-slide-up">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">{{ title }}</h1>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Sidebar -->
+        {% include 'management/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            <div class="premium-card p-8 border border-white/5 bg-[#050505]">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Full Name</label>
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Email Address</label>
+                            {{ form.email }}
+                            {{ form.email.errors }}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Password</label>
+                            {{ form.password }}
+                            {{ form.password.errors }}
+                        </div>
+                        
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Department</label>
+                            {{ form.department }}
+                            {{ form.department.errors }}
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 mt-6 border-t border-white/10 flex justify-end">
+                        <button type="submit" class="btn-primary text-black font-bold py-3 px-8 rounded-lg flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Interviewer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

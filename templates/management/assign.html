@@ -4,50 +4,57 @@
 {% block header_nav %}{% endblock %}
 
 {% block content %}
-<div class="max-w-xl mx-auto mt-10 animate-slide-up">
+<div class="max-w-7xl mx-auto mt-10 animate-slide-up">
     <div class="mb-6 flex items-center justify-between">
         <h2 class="text-3xl font-extrabold text-white tracking-tight">Assign Interviewer</h2>
-        <a href="{% url 'management_dashboard' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 hover:text-white transition bg-surfaceLight/50 hover:bg-surfaceLight px-4 py-2 rounded-full border border-white/5">
-            <i class="fa-solid fa-arrow-left"></i> Back
-        </a>
     </div>
     
-    <div class="glass-panel p-8 rounded-2xl relative overflow-hidden shadow-2xl">
-        <!-- Decor -->
-        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-accent"></div>
-        
-        <div class="mb-8 p-5 bg-surface/50 border border-white/10 rounded-xl flex items-start gap-4">
-            <div class="h-12 w-12 rounded-full bg-surfaceLight flex items-center justify-center text-gray-300 font-bold border border-white/5 shadow-inner">
-                {{ candidate.user.name|make_list|first|upper }}
-            </div>
-            <div>
-                <h3 class="text-lg text-white font-bold">{{ candidate.user.name }}</h3>
-                <p class="text-gray-400 text-sm mb-3"><i class="fa-regular fa-envelope mr-1"></i> {{ candidate.user.email }}</p>
-                <a href="{{ candidate.resume.url }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary hover:text-primaryHover transition">
-                    <i class="fa-regular fa-file-pdf"></i> View Resume
-                </a>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Sidebar -->
+        {% include 'management/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            <div class="glass-panel p-8 rounded-2xl relative overflow-hidden shadow-2xl">
+                <!-- Decor -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-accent"></div>
+                
+                <div class="mb-8 p-5 bg-surface/50 border border-white/10 rounded-xl flex items-start gap-4">
+                    <div class="h-12 w-12 rounded-full bg-surfaceLight flex items-center justify-center text-gray-300 font-bold border border-white/5 shadow-inner">
+                        {{ candidate.user.name|make_list|first|upper }}
+                    </div>
+                    <div>
+                        <h3 class="text-lg text-white font-bold">{{ candidate.user.name }}</h3>
+                        <p class="text-gray-400 text-sm mb-3"><i class="fa-regular fa-envelope mr-1"></i> {{ candidate.user.email }}</p>
+                        <a href="{{ candidate.resume.url }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary hover:text-primaryHover transition">
+                            <i class="fa-regular fa-file-pdf"></i> View Resume
+                        </a>
+                    </div>
+                </div>
+                
+                <form method="post" class="space-y-6 relative z-10">
+                    {% csrf_token %}
+                    
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-user-tie mr-1 text-primary"></i> Select Interviewer</label>
+                        <div class="relative">
+                            {{ form.interviewer }}
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-calendar-day mr-1 text-primary"></i> Scheduled Date & Time</label>
+                        {{ form.scheduled_time }}
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button type="submit" class="w-full btn-primary font-extrabold py-3.5 px-6 rounded-xl flex justify-center items-center gap-2 shadow-lg hover:shadow-primary/20">
+                            Confirm Assignment <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-        
-        <form method="post" class="space-y-6 relative z-10">
-            {% csrf_token %}
-            
-            <div class="space-y-1">
-                <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-user-tie mr-1 text-primary"></i> Select Interviewer</label>
-                <div class="relative">
-                    {{ form.interviewer }}
-                </div>
-            </div>
-            
-            <div class="space-y-1">
-                <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-calendar-day mr-1 text-primary"></i> Scheduled Date & Time</label>
-                {{ form.scheduled_time }}
-            </div>
-            
-            <button type="submit" class="w-full btn-gradient text-white font-bold py-4 px-4 rounded-xl mt-8 flex justify-center items-center gap-2 shadow-lg hover:shadow-primary/30 transition-all text-lg">
-                <i class="fa-solid fa-magic"></i> Assign & Generate Meeting Link
-            </button>
-        </form>
     </div>
 </div>
 {% endblock %}

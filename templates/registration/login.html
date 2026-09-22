@@ -82,7 +82,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Password</label>
-                            <a href="#" class="text-xs text-blue-400 hover:text-blue-300">Forgot password?</a>
+                            <a href="{% url 'password_reset' %}" class="text-xs text-blue-400 hover:text-blue-300">Forgot password?</a>
                         </div>
                         <input type="password" name="password" class="w-full p-3.5 bg-[#111] border border-white/10 rounded-lg text-white placeholder-gray-600 focus:border-white focus:ring-1 focus:ring-white transition-all outline-none font-medium" placeholder="••••••••" required>
                     </div>
@@ -97,7 +97,7 @@
                 
                 <div class="mt-10 text-center text-gray-500 text-sm">
                     Don't have an account? 
-                    <a href="/candidate/register/" class="text-white hover:underline transition-all font-medium">
+                    <a href="{% url 'candidate_register' %}" class="text-white hover:underline transition-all font-medium">
                         Apply as Candidate
                     </a>
                 </div>

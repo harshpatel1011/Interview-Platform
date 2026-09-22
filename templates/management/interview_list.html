@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Interviews Management</h1>
+            <p class="text-gray-400 mt-2">Manage all scheduled and completed interviews.</p>
+        </div>
+        <div class="flex gap-4">
+            <a href="{% url 'management_interview_create' %}" class="btn-primary text-black px-4 py-2 text-sm font-bold flex items-center gap-2 rounded-lg">
+                <i class="fa-solid fa-plus"></i> Schedule Interview
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Sidebar -->
+        {% include 'management/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            <div class="premium-card overflow-hidden border border-white/5 bg-[#050505]">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-black/50 border-b border-white/10 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                <th class="p-4">Candidate</th>
+                                <th class="p-4">Interviewer</th>
+                                <th class="p-4">Time</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {% for interview in interviews %}
+                            <tr class="hover:bg-white/5 transition group">
+                                <td class="p-4">
+                                    <div class="text-white font-bold">{{ interview.candidate.user.name }}</div>
+                                    <div class="text-xs text-gray-500">{{ interview.candidate.user.email }}</div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="text-white font-bold">{{ interview.interviewer.user.name }}</div>
+                                    <div class="text-xs text-gray-500">{{ interview.interviewer.department|default:"-" }}</div>
+                                </td>
+                                <td class="p-4 text-gray-300 text-sm font-medium">
+                                    {{ interview.scheduled_time|date:"M d, Y - g:i A" }}
+                                </td>
+                                <td class="p-4">
+                                    {% if interview.status == 'SCHEDULED' %}
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">Scheduled</span>
+                                    {% elif interview.status == 'COMPLETED' %}
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">Completed</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/20">{{ interview.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="p-4 text-right">
+                                    <div class="flex items-center justify-end gap-3">
+                                        {% if interview.meeting_link %}
+                                        <a href="{{ interview.meeting_link }}" target="_blank" class="text-gray-400 hover:text-blue-400 transition" title="Join Room">
+                                            <i class="fa-solid fa-video"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{% url 'management_interview_edit' interview.id %}" class="text-gray-400 hover:text-yellow-400 transition" title="Edit">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <form method="post" action="{% url 'management_interview_delete' interview.id %}" class="inline-block" onsubmit="return confirm('Delete this interview? This cannot be undone.');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="text-gray-400 hover:text-red-400 transition" title="Delete">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-gray-500">
+                                    No interviews found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

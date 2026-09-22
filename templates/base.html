@@ -49,6 +49,12 @@
         }
     </script>
     <style>
+        :root {
+            color-scheme: dark;
+        }
+        input, select, textarea {
+            color-scheme: dark;
+        }
         body {
             background-color: #000000;
             color: #888888;
@@ -105,6 +111,7 @@
             background: #0A0A0A;
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #FFFFFF;
+            color-scheme: dark;
             transition: all 0.2s ease;
         }
         .premium-input:focus {
@@ -153,17 +160,7 @@
                     <span class="text-xl font-bold text-white tracking-tight">TechPlus</span>
                 </a>
                 
-                {% block header_nav %}
-                <!-- Desktop Navigation (Working Routes) -->
-                <nav class="hidden md:flex items-center gap-8">
-                    <a href="/#features" class="text-sm font-medium text-[#888888] hover:text-white transition">Features</a>
-                    <a href="/#deep-dive" class="text-sm font-medium text-[#888888] hover:text-white transition">Deep Dive</a>
-                    <a href="/#customers" class="text-sm font-medium text-[#888888] hover:text-white transition">Customers</a>
-                    {% if not user.is_authenticated %}
-                        <a href="/candidate/register/" class="text-sm font-medium text-[#888888] hover:text-white transition">Apply</a>
-                    {% endif %}
-                </nav>
-                {% endblock %}
+                {% block header_nav %}{% endblock %}
 
                 <!-- Auth/Actions -->
                 <div class="flex items-center gap-4">
@@ -181,10 +178,7 @@
                             </button>
                         </form>
                     {% else %}
-                        <a href="{% url 'login' %}" class="hidden sm:block text-sm font-medium text-[#888888] hover:text-white transition mr-2">Log in</a>
-                        <a href="/candidate/register/" class="btn-primary px-5 py-2 text-sm font-medium shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                            Sign up
-                        </a>
+                        <a href="{% url 'login' %}" class="hidden sm:block btn-primary px-5 py-2 text-sm font-medium shadow-[0_0_15px_rgba(255,255,255,0.3)]">Log in</a>
                     {% endif %}
                 </div>
             </div>
@@ -240,7 +234,7 @@
                 <div>
                     <h4 class="text-white font-medium mb-4 text-sm">Roles</h4>
                     <ul class="space-y-3 text-sm text-[#888888]">
-                        <li><a href="/candidate/register/" class="hover:text-white transition">Candidates</a></li>
+                        <li><a href="{% url 'candidate_register' %}" class="hover:text-white transition">Candidates</a></li>
                         <li><a href="{% url 'login' %}" class="hover:text-white transition">Interviewers</a></li>
                         <li><a href="{% url 'login' %}" class="hover:text-white transition">Management</a></li>
                     </ul>
@@ -248,8 +242,8 @@
                 <div>
                     <h4 class="text-white font-medium mb-4 text-sm">Legal</h4>
                     <ul class="space-y-3 text-sm text-[#888888]">
-                        <li><a href="/?policy=privacy" class="hover:text-white transition">Privacy Policy</a></li>
-                        <li><a href="/?policy=terms" class="hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="{% url 'privacy_policy' %}" class="hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="{% url 'terms_of_service' %}" class="hover:text-white transition">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
