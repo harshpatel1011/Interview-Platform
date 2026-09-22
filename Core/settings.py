@@ -132,3 +132,14 @@ AUTH_USER_MODEL = 'Management.CustomUser'
 
 LOGIN_REDIRECT_URL = 'dashboard_redirect'
 LOGOUT_REDIRECT_URL = '/'
+
+# Email Configuration
+# For development, we'll print emails to the console. 
+# In production, change backend to 'django.core.mail.backends.smtp.EmailBackend' and fill in SMTP details.
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'harshpatel42749@gmail.com'
+EMAIL_HOST_PASSWORD = 'bqjc xeyk mssp cuay'
+DEFAULT_FROM_EMAIL = 'TechPlus <noreply@techplus.io>'

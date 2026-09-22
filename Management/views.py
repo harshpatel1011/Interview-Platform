@@ -37,6 +37,16 @@ def assign_interviewer(request, candidate_id):
             candidate.status = 'ASSIGNED'
             candidate.save()
             
+            # Send Calendar Invites
+            from .email_utils import send_interview_invites
+            try:
+                send_interview_invites(request, interview)
+                messages.success(request, 'Interviewer assigned and calendar invites sent successfully!')
+            except Exception as e:
+                # Log error or warn user in a real app, but don't crash
+                print(f"Failed to send emails: {e}")
+                messages.success(request, 'Interviewer assigned successfully (but email failed).')
+            
             return redirect('management_dashboard')
     else:
         form = AssignInterviewerForm()
@@ -158,7 +168,15 @@ def interview_create(request):
             meeting_id = str(uuid.uuid4())[:12]
             interview.meeting_link = f"/interviewer/room/{meeting_id}/"
             interview.save()
-            messages.success(request, 'Interview created successfully.')
+            
+            # Send Calendar Invites
+            from .email_utils import send_interview_invites
+            try:
+                send_interview_invites(request, interview)
+            except Exception as e:
+                print(f"Failed to send emails: {e}")
+                
+            messages.success(request, 'Interview created successfully. Calendar invites have been sent!')
             return redirect('management_interview_list')
     else:
         form = InterviewCRUDForm()
@@ -169,9 +187,19 @@ def interview_edit(request, id):
     if request.user.role != 'MANAGEMENT': return redirect('home')
     interview = get_object_or_404(Interview, id=id)
     if request.method == 'POST':
+        old_status = interview.status
         form = InterviewCRUDForm(request.POST, instance=interview)
         if form.is_valid():
-            form.save()
+            updated_interview = form.save()
+            new_status = updated_interview.status
+            
+            if old_status != new_status and new_status in ['CANCELLED', 'COMPLETED']:
+                from .email_utils import send_interview_update
+                try:
+                    send_interview_update(request, updated_interview, new_status)
+                except Exception as e:
+                    print(f"Failed to send update emails: {e}")
+            
             messages.success(request, 'Interview updated successfully.')
             return redirect('management_interview_list')
     else:
@@ -183,6 +211,15 @@ def interview_delete(request, id):
     if request.user.role != 'MANAGEMENT': return redirect('home')
     if request.method == 'POST':
         interview = get_object_or_404(Interview, id=id)
+        
+        # Send cancellation email if it wasn't already cancelled or completed
+        if interview.status not in ['CANCELLED', 'COMPLETED']:
+            from .email_utils import send_interview_update
+            try:
+                send_interview_update(request, interview, 'CANCELLED')
+            except Exception as e:
+                print(f"Failed to send cancellation emails: {e}")
+                
         interview.delete()
-        messages.success(request, 'Interview deleted successfully.')
+        messages.success(request, 'Interview deleted successfully. Cancellation emails sent.')
     return redirect('management_interview_list')
