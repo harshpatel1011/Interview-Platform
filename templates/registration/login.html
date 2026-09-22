@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-16 animate-slide-up">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-extrabold text-white mb-2">Welcome Back</h2>
+        <p class="text-gray-400">Sign in to your TechPlus account</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="glass-panel p-8 rounded-2xl relative overflow-hidden">
+        <!-- Decorative blob -->
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-accent/20 rounded-full blur-2xl"></div>
+        
+        <form method="post" class="space-y-5 relative z-10">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1.5"><i class="fa-solid fa-envelope mr-1"></i> Email Address</label>
+                <input type="email" name="username" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" placeholder="name@company.com" required>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1.5"><i class="fa-solid fa-lock mr-1"></i> Password</label>
+                <input type="password" name="password" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="w-full btn-gradient text-white font-bold py-3.5 px-4 rounded-xl mt-6 flex items-center justify-center gap-2 text-lg">
+                <span>Sign In</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+    
+    <div class="mt-8 text-center text-gray-500 text-sm">
+        Don't have an account? 
+        <a href="/candidate/register/" class="text-primary hover:text-primaryHover font-medium hover:underline transition-all">
+            Apply as Candidate
+        </a>
+    </div>
+</div>
+{% endblock %}

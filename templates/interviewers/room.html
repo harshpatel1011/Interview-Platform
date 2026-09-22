@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between animate-fade-in">
+    <div>
+        <h2 class="text-2xl font-extrabold text-white flex items-center gap-3">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+            Live Room: {{ interview.candidate.user.name }}
+        </h2>
+    </div>
+    {% if user.role == 'INTERVIEWER' %}
+        <a href="{% url 'interviewer_dashboard' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 hover:text-white transition bg-surfaceLight/50 hover:bg-surfaceLight px-4 py-2 rounded-full border border-white/5">
+            <i class="fa-solid fa-arrow-left"></i> Exit Room
+        </a>
+    {% else %}
+        <a href="{% url 'candidate_dashboard' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 hover:text-white transition bg-surfaceLight/50 hover:bg-surfaceLight px-4 py-2 rounded-full border border-white/5">
+            <i class="fa-solid fa-arrow-left"></i> Exit Room
+        </a>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[75vh] animate-slide-up" style="animation-delay: 0.1s;">
+    <!-- Video Section -->
+    <div class="lg:col-span-3 bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex flex-col relative">
+        <div id="jitsi-container" class="flex-grow w-full h-full relative z-10"></div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-primary/50"></i>
+        </div>
+    </div>
+    
+    <!-- Sidebar Section -->
+    <div class="glass-panel rounded-2xl shadow-2xl border border-white/10 flex flex-col h-full overflow-hidden">
+        <div class="p-5 border-b border-white/10 bg-surface/50">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-circle-info text-primary"></i> Session Info</h3>
+        </div>
+        
+        <div class="p-5 flex-grow overflow-y-auto">
+            <div class="mb-6 p-4 rounded-xl bg-surfaceLight border border-white/5">
+                <p class="text-xs uppercase tracking-wider text-gray-500 font-bold mb-1">Candidate</p>
+                <p class="text-white font-bold text-lg">{{ interview.candidate.user.name }}</p>
+                
+                <a href="{{ interview.candidate.resume.url }}" target="_blank" class="mt-4 w-full inline-flex justify-center items-center gap-2 bg-surface hover:bg-dark border border-white/10 text-white py-2 rounded-lg transition text-sm font-medium">
+                    <i class="fa-regular fa-file-pdf text-red-400"></i> Open Resume
+                </a>
+            </div>
+            
+            {% if user.role == 'INTERVIEWER' %}
+                <h3 class="text-lg font-bold text-white mb-4 mt-8 flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-accent"></i> Evaluation</h3>
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Score</label>
+                        {{ form.score }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Feedback Notes</label>
+                        {{ form.feedback }}
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg mt-6 flex justify-center items-center gap-2 group">
+                        <i class="fa-solid fa-check-double group-hover:scale-110 transition-transform"></i> Submit & Complete
+                    </button>
+                </form>
+            {% else %}
+                <div class="mt-8 p-5 bg-blue-500/10 rounded-xl border border-blue-500/20 text-blue-100/80 text-sm leading-relaxed text-center">
+                    <div class="text-3xl text-blue-400/50 mb-3"><i class="fa-solid fa-shield-halved"></i></div>
+                    <p>This is a secure room. The interviewer will join shortly. Please ensure your camera and microphone permissions are granted.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src='https://meet.jit.si/external_api.js'></script>
+<script>
+    const domain = 'meet.jit.si';
+    const options = {
+        roomName: 'TechPlus_{{ meeting_id }}',
+        width: '100%',
+        height: '100%',
+        parentNode: document.querySelector('#jitsi-container'),
+        userInfo: {
+            displayName: '{{ user.name }}'
+        },
+        configOverwrite: { 
+            prejoinPageEnabled: false,
+            startWithAudioMuted: false,
+            startWithVideoMuted: false
+        },
+        interfaceConfigOverwrite: {
+            TOOLBAR_BUTTONS: [
+                'microphone', 'camera', 'desktop', 'fullscreen',
+                'fodeviceselection', 'hangup', 'chat', 'settings',
+                'videoquality', 'tileview',
+            ],
+            DISABLE_JOIN_LEAVE_NOTIFICATIONS: true
+        }
+    };
+    const api = new JitsiMeetExternalAPI(domain, options);
+</script>
+{% endblock %}
