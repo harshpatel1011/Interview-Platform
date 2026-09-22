@@ -1,46 +1,116 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="max-w-xl mx-auto mt-10 animate-slide-up">
-    <div class="text-center mb-8">
-        <h2 class="text-3xl font-extrabold text-white mb-2">Apply as Candidate</h2>
-        <p class="text-gray-400">Join the talent network. Fill in your details below.</p>
-    </div>
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block main_container %}
+<div class="flex flex-col lg:flex-row min-h-screen w-full bg-[#050505]">
     
-    <div class="glass-panel p-8 md:p-10 rounded-2xl relative overflow-hidden shadow-2xl">
-        <!-- Decor -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+    <!-- Left Side: Project Details -->
+    <div class="hidden lg:flex w-full lg:w-1/2 bg-black p-10 md:p-16 flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-white/5">
+            <!-- Decorative Background Element -->
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div class="absolute -top-1/2 -left-1/2 w-full h-full bg-blue-500/10 blur-[100px] rounded-full"></div>
+            </div>
+            
+            <div class="relative z-10">
+                <a href="/" class="flex items-center gap-2 mb-12 inline-flex">
+                    <div class="h-8 w-8 rounded-lg bg-white flex items-center justify-center">
+                        <i class="fa-solid fa-layer-group text-black text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white tracking-tight">TechPlus</span>
+                </a>
+                
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                    Join the elite talent network.
+                </h2>
+                
+                <p class="text-[#888888] mb-12 leading-relaxed">
+                    Apply once to access technical interviews with the world's most innovative engineering teams. Your profile, your rules.
+                </p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-circle-check text-white"></i>
+                        <span class="text-sm text-gray-400">One-click video room access</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-circle-check text-white"></i>
+                        <span class="text-sm text-gray-400">Real-time application status tracking</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-circle-check text-white"></i>
+                        <span class="text-sm text-gray-400">Secure resume & data privacy</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative z-10 mt-16 pt-8 border-t border-white/10">
+                <p class="text-xs text-[#666666]">
+                    "TechPlus made my interviewing experience incredibly smooth. No software to download, and I knew my status every step of the way."
+                </p>
+                <div class="flex items-center gap-3 mt-4">
+                    <div class="w-6 h-6 rounded-full bg-white/20"></div>
+                    <span class="text-xs text-white font-medium">Senior Backend Engineer</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Registration Form -->
+        <div class="w-full lg:w-1/2 bg-[#050505] p-10 md:p-16 flex flex-col justify-center relative">
+            <div class="w-full max-w-md mx-auto relative z-10">
+                <div class="text-center md:text-left mb-10">
+                    <h2 class="text-3xl font-bold text-white mb-2">Apply as Candidate</h2>
+                    <p class="text-gray-400 text-sm">Create your profile to get started.</p>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            {{ form.non_field_errors.0 }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wide">Full Name</label>
+                        {{ form.name }}
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wide">Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="text-red-400 text-xs mt-1 bg-red-500/10 p-2 rounded"><i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wide">Password</label>
+                        {{ form.password }}
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wide">Upload Resume (PDF)</label>
+                        {{ form.resume }}
+                    </div>
+                    
+                    <button type="submit" class="w-full btn-primary text-black font-bold py-3.5 px-4 rounded-lg mt-8 flex justify-center items-center gap-2 shadow-lg hover:scale-[1.02] transition-transform">
+                        <span>Submit Application</span>
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </button>
+                </form>
+                
+                <div class="mt-10 text-center text-gray-500 text-sm">
+                    Already have an account? 
+                    <a href="{% url 'login' %}" class="text-white hover:underline transition-all font-medium">
+                        Log in here
+                    </a>
+                </div>
+            </div>
+        </div>
         
-        <form method="post" enctype="multipart/form-data" class="space-y-6 relative z-10">
-            {% csrf_token %}
-            
-            <div class="space-y-1">
-                <label class="block text-sm font-medium text-gray-300"><i class="fa-regular fa-user mr-1 text-primary"></i> Full Name</label>
-                {{ form.name }}
-            </div>
-            
-            <div class="space-y-1">
-                <label class="block text-sm font-medium text-gray-300"><i class="fa-regular fa-envelope mr-1 text-primary"></i> Email Address</label>
-                {{ form.email }}
-                {% if form.email.errors %}
-                    <p class="text-red-400 text-xs mt-1 bg-red-500/10 p-2 rounded"><i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ form.email.errors.0 }}</p>
-                {% endif %}
-            </div>
-            
-            <div class="space-y-1">
-                <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-key mr-1 text-primary"></i> Password</label>
-                {{ form.password }}
-            </div>
-            
-            <div class="space-y-1">
-                <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-file-pdf mr-1 text-primary"></i> Upload Resume (PDF)</label>
-                {{ form.resume }}
-            </div>
-            
-            <button type="submit" class="w-full btn-gradient text-white font-bold py-4 px-4 rounded-xl mt-8 flex justify-center items-center gap-2 shadow-lg hover:shadow-primary/30 transition-all text-lg">
-                <i class="fa-solid fa-paper-plane"></i> Submit Application
-            </button>
-        </form>
     </div>
-</div>
 {% endblock %}

@@ -1,0 +1,46 @@
+<!-- Sidebar -->
+<div class="md:col-span-1 space-y-6">
+    <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Quick Actions</h3>
+        <div class="flex flex-col gap-3">
+            <a href="{% url 'candidate_dashboard' %}" class="flex items-center justify-between p-3 rounded bg-white/5 hover:bg-white/10 transition border border-white/5 group">
+                <div class="flex items-center gap-3 text-sm {% if request.resolver_match.url_name == 'candidate_dashboard' %}text-white font-bold{% else %}text-gray-300 group-hover:text-white{% endif %} transition">
+                    <i class="fa-solid fa-house text-blue-400"></i> Dashboard
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-600"></i>
+            </a>
+            <a href="{% if user.candidate_profile.resume %}{{ user.candidate_profile.resume.url }}{% else %}#{% endif %}" target="_blank" class="flex items-center justify-between p-3 rounded bg-white/5 hover:bg-white/10 transition border border-white/5 group">
+                <div class="flex items-center gap-3 text-sm text-gray-300 group-hover:text-white transition">
+                    <i class="fa-solid fa-file-pdf text-red-400"></i> View Resume
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-600"></i>
+            </a>
+            <a href="{% url 'candidate_profile' %}" class="flex items-center justify-between p-3 rounded bg-white/5 hover:bg-white/10 transition border border-white/5 group">
+                <div class="flex items-center gap-3 text-sm {% if request.resolver_match.url_name == 'candidate_profile' %}text-white font-bold{% else %}text-gray-300 group-hover:text-white{% endif %} transition">
+                    <i class="fa-solid fa-gear text-gray-400"></i> Profile Settings
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-600"></i>
+            </a>
+            <a href="{% url 'candidate_history' %}" class="flex items-center justify-between p-3 rounded bg-white/5 hover:bg-white/10 transition border border-white/5 group">
+                <div class="flex items-center gap-3 text-sm {% if request.resolver_match.url_name == 'candidate_history' %}text-white font-bold{% else %}text-gray-300 group-hover:text-white{% endif %} transition">
+                    <i class="fa-solid fa-clock-rotate-left text-gray-400"></i> Interview History
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-600"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Application Info</h3>
+        <div class="space-y-4 text-sm">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-500">Applied On</span>
+                <span class="text-white font-medium">{{ user.candidate_profile.applied_date|date:"M d, Y" }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-500">Applicant ID</span>
+                <span class="text-gray-400 font-mono text-xs">#CAND-{{ user.candidate_profile.id|stringformat:"04d" }}</span>
+            </div>
+        </div>
+    </div>
+</div>

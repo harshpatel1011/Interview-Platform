@@ -15,3 +15,13 @@ class CandidateRegistrationForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500', 'placeholder': 'John Doe'}),
             'email': forms.EmailInput(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500', 'placeholder': 'name@example.com'}),
         }
+
+class CandidateProfileUpdateForm(forms.ModelForm):
+    name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500'}))
+    
+    class Meta:
+        model = CandidateProfile
+        fields = ['resume']
+        widgets = {
+            'resume': forms.FileInput(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white'}),
+        }

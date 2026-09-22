@@ -1,93 +1,84 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="mb-8 animate-slide-up">
-    <h2 class="text-3xl font-extrabold text-white tracking-tight">Candidate Dashboard</h2>
-    <p class="text-gray-400 mt-1 text-lg">Track your interview status and join scheduled meetings.</p>
-</div>
+{% block footer %}{% endblock %}
+{% block header_nav %}{% endblock %}
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 animate-slide-up" style="animation-delay: 0.1s;">
-    <!-- Profile Sidebar -->
-    <div class="md:col-span-1 glass-panel p-6 rounded-2xl h-fit sticky top-24">
-        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
-            <i class="fa-regular fa-id-badge text-primary"></i> Profile Snapshot
-        </h3>
-        
-        <div class="space-y-4">
-            <div>
-                <span class="text-gray-500 text-xs uppercase tracking-wider font-semibold">Status</span>
-                <p class="mt-1">
-                    {% if profile.status == 'PENDING' %}
-                        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"><i class="fa-solid fa-clock"></i> Pending Assignment</span>
-                    {% elif profile.status == 'ASSIGNED' %}
-                        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20"><i class="fa-regular fa-calendar-check"></i> Interview Assigned</span>
-                    {% else %}
-                        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20"><i class="fa-solid fa-check-double"></i> Interview Completed</span>
-                    {% endif %}
-                </p>
-            </div>
-            
-            <div>
-                <span class="text-gray-500 text-xs uppercase tracking-wider font-semibold">Applied On</span>
-                <p class="text-white font-medium mt-1"><i class="fa-regular fa-calendar text-gray-500 mr-1"></i> {{ profile.applied_date|date:"M d, Y" }}</p>
-            </div>
-            
-            <div class="pt-2">
-                <a href="{{ profile.resume.url }}" target="_blank" class="w-full inline-flex justify-center items-center gap-2 bg-surface hover:bg-surfaceLight border border-white/10 text-white py-2.5 rounded-lg transition text-sm font-medium">
-                    <i class="fa-regular fa-file-pdf text-red-400"></i> View Resume
-                </a>
+{% block content %}
+<div class="max-w-6xl mx-auto animate-slide-up mt-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Candidate Dashboard</h2>
+            <p class="text-gray-400 mt-1">Track your interview status and join scheduled meetings.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-bold flex items-center gap-2">
+                <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> {{ profile.get_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Main Content (Interviews) -->
+        <div class="md:col-span-2 space-y-6">
+            <div class="premium-card p-0 border border-white/5 bg-[#050505] overflow-hidden">
+                <div class="p-6 border-b border-white/5 bg-black/40 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-video text-gray-500"></i> Upcoming Interviews
+                    </h3>
+                </div>
+                
+                {% if interviews %}
+                    <div class="divide-y divide-white/5">
+                        {% for interview in interviews %}
+                            <div class="p-6 bg-transparent hover:bg-white/5 transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-6 group">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex flex-shrink-0 items-center justify-center text-blue-400 font-bold text-lg mt-1">
+                                        {{ interview.interviewer.user.name.0|upper }}
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-lg">Interview with {{ interview.interviewer.user.name }}</h4>
+                                        <p class="text-gray-500 text-sm mt-1 flex items-center gap-2">
+                                            <i class="fa-regular fa-clock"></i> {{ interview.scheduled_time|date:"F j, Y - g:i A" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-shrink-0">
+                                    {% if interview.status == 'SCHEDULED' and interview.meeting_link %}
+                                        <a href="{{ interview.meeting_link }}" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all">
+                                            <i class="fa-solid fa-phone"></i> Join Room
+                                        </a>
+                                    {% elif interview.status == 'COMPLETED' %}
+                                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-bold bg-white/5 text-gray-400 border border-white/10"><i class="fa-solid fa-check"></i> Completed</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-16 px-6">
+                        <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-regular fa-calendar-xmark text-2xl text-gray-600"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">No interviews scheduled</h4>
+                        <p class="text-gray-500 text-sm max-w-sm mx-auto">We are reviewing your application and will notify you once an interviewer is assigned.</p>
+                    </div>
+                {% endif %}
             </div>
             
             {% if profile.score %}
-                <div class="mt-8 p-6 rounded-xl bg-gradient-to-br from-surfaceLight to-surface border border-white/10 relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 text-white/5 text-6xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-trophy"></i></div>
-                    <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Final Result</h4>
-                    <p class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500 mt-2">{{ profile.score }}<span class="text-xl text-gray-500 font-medium">/100</span></p>
+            <div class="premium-card p-6 border border-white/5 bg-gradient-to-br from-[#050505] to-[#111827] relative overflow-hidden group">
+                <div class="absolute -right-8 -top-8 text-white/5 text-8xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-award"></i></div>
+                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Final Result</h4>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">{{ profile.score }}</span>
+                    <span class="text-xl text-gray-600 font-medium">/ 100</span>
                 </div>
+            </div>
             {% endif %}
         </div>
-    </div>
-    
-    <!-- Main Content -->
-    <div class="md:col-span-2 glass-panel p-6 sm:p-8 rounded-2xl">
-        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
-            <i class="fa-solid fa-video text-accent"></i> My Interviews
-        </h3>
-        
-        {% if interviews %}
-            <div class="space-y-4">
-                {% for interview in interviews %}
-                    <div class="p-5 sm:p-6 bg-surface/80 rounded-xl border border-white/5 hover:border-primary/30 transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-4 group shadow-sm">
-                        <div>
-                            <p class="text-white font-bold text-lg flex items-center gap-2">
-                                Interview with {{ interview.interviewer.user.name }}
-                            </p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <p class="text-gray-400 text-sm flex items-center gap-1.5"><i class="fa-regular fa-clock text-primary"></i> {{ interview.scheduled_time }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex-shrink-0">
-                            {% if interview.status == 'SCHEDULED' and interview.meeting_link %}
-                                <a href="{{ interview.meeting_link }}" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-bold px-6 py-3 rounded-lg shadow-lg hover:shadow-green-500/25 transition-all group-hover:-translate-y-1">
-                                    <i class="fa-solid fa-video"></i> Join Call
-                                </a>
-                            {% elif interview.status == 'COMPLETED' %}
-                                <span class="inline-flex items-center gap-1.5 text-gray-500 bg-surfaceLight px-4 py-2 rounded-lg text-sm font-medium border border-white/5"><i class="fa-solid fa-check"></i> Completed</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center py-12 px-4 rounded-xl border border-dashed border-white/10 bg-surface/30">
-                <div class="h-16 w-16 bg-surfaceLight rounded-full flex items-center justify-center text-gray-400 text-2xl mx-auto mb-4">
-                    <i class="fa-regular fa-calendar-xmark"></i>
-                </div>
-                <h4 class="text-lg font-bold text-white mb-2">No interviews scheduled yet</h4>
-                <p class="text-gray-400 text-sm max-w-sm mx-auto">We are reviewing your application and will notify you once an interviewer is assigned.</p>
-            </div>
-        {% endif %}
+
+        {% include 'candidates/sidebar.html' %}
     </div>
 </div>
 {% endblock %}

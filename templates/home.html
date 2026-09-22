@@ -47,29 +47,87 @@
         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 bottom-[-2px]"></div>
         <div class="premium-card p-2 md:p-3 shadow-2xl relative z-0 transition-transform duration-700 hover:rotate-x-2">
             <div class="bg-[#050505] rounded-xl overflow-hidden border border-white/5 aspect-[16/9] flex relative">
-                <!-- Sidebar -->
-                <div class="w-1/4 border-r border-white/5 bg-[#0A0A0A] p-4 hidden md:flex flex-col gap-4">
-                    <div class="h-4 w-1/2 bg-white/10 rounded"></div>
-                    <div class="space-y-2 mt-4">
-                        <div class="h-8 w-full bg-white/5 rounded"></div>
-                        <div class="h-8 w-full bg-white/5 rounded"></div>
-                        <div class="h-8 w-full bg-blue-500/10 border border-blue-500/20 rounded"></div>
+                <!-- Sidebar (Scoring/Details) -->
+                <div class="w-1/4 border-r border-white/5 bg-[#0A0A0A] p-5 hidden md:flex flex-col gap-4 text-left">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm border border-blue-500/30">SJ</div>
+                        <div>
+                            <div class="text-white text-xs font-bold">Sarah Jenkins</div>
+                            <div class="text-[#666] text-[10px]">Senior Frontend Eng</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mt-2">
+                        <div class="text-[10px] text-[#666] uppercase tracking-wider font-bold mb-1">Evaluation</div>
+                        
+                        <div class="w-full bg-[#111] border border-white/5 rounded p-3">
+                            <div class="flex justify-between text-[10px] text-gray-400 mb-2 font-medium">
+                                <span>Algorithms</span>
+                                <span class="text-white font-bold">8/10</span>
+                            </div>
+                            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                <div class="w-[80%] h-full bg-blue-500 rounded-full"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full bg-[#111] border border-white/5 rounded p-3">
+                            <div class="flex justify-between text-[10px] text-gray-400 mb-2 font-medium">
+                                <span>System Design</span>
+                                <span class="text-white font-bold">--/10</span>
+                            </div>
+                            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden"></div>
+                        </div>
+                        
+                        <div class="w-full bg-blue-500/10 border border-blue-500/20 rounded p-3 flex items-center gap-2 mt-4 cursor-pointer hover:bg-blue-500/20 transition text-blue-400 text-xs font-bold justify-center">
+                            <i class="fa-solid fa-file-pdf"></i> View Resume
+                        </div>
                     </div>
                 </div>
                 <!-- Main Area -->
                 <div class="flex-grow flex flex-col relative overflow-hidden">
+                    <!-- Glow effect inside UI -->
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-                    <div class="h-12 border-b border-white/5 bg-transparent flex items-center px-6 justify-between z-10">
-                        <div class="flex gap-2">
-                            <div class="w-2.5 h-2.5 rounded-full bg-white/20"></div>
-                            <div class="w-2.5 h-2.5 rounded-full bg-white/20"></div>
+                    
+                    <div class="h-12 border-b border-white/5 bg-transparent flex items-center px-6 justify-between z-10 text-xs">
+                        <div class="flex items-center gap-4 text-[#888]">
+                            <div class="flex gap-2">
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
+                            </div>
+                            <div class="px-3 py-1 bg-white/5 rounded text-white font-medium flex items-center gap-2 border border-white/5"><i class="fa-brands fa-python text-blue-400"></i> solution.py</div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-red-400 font-mono text-[10px] flex items-center gap-1.5"><span class="animate-pulse w-2 h-2 rounded-full bg-red-500 block"></span> 00:45:12</span>
+                            <div class="px-3 py-1 bg-red-500/10 text-red-500 rounded border border-red-500/20 font-bold text-[10px]">End Call</div>
                         </div>
                     </div>
-                    <div class="flex-grow flex items-center justify-center z-10 p-8">
-                        <div class="w-full h-full border border-white/5 bg-[#0A0A0A] rounded-lg relative flex items-center justify-center shadow-inner overflow-hidden">
-                            <i class="fa-solid fa-code text-4xl text-white/10"></i>
-                            <div class="absolute bottom-4 right-4 w-32 h-24 bg-[#111] border border-white/10 rounded shadow-2xl flex items-center justify-center">
-                                <i class="fa-regular fa-user text-white/30"></i>
+                    <div class="flex-grow flex items-center justify-center z-10 p-6 relative">
+                        <div class="w-full h-full border border-white/5 bg-[#0A0A0A] rounded-lg relative flex shadow-inner overflow-hidden text-left p-6 font-mono text-sm leading-relaxed">
+                            
+                            <!-- Fake Code Editor -->
+                            <div class="text-[#444] select-none pr-4 text-right border-r border-white/5 mr-4 h-full flex flex-col gap-1 text-[13px]">
+                                1<br>2<br>3<br>4<br>5<br>6<br>7<br>8
+                            </div>
+                            <div class="text-[#ccc] flex flex-col gap-1 w-full relative text-[13px]">
+                                <div><span class="text-pink-500">def</span> <span class="text-blue-400">solve_n_queens</span>(n):</div>
+                                <div class="pl-6"><span class="text-[#666] italic"># Initialize the board</span></div>
+                                <div class="pl-6">board = [[<span class="text-orange-400">0</span>] * n <span class="text-pink-500">for</span> _ <span class="text-pink-500">in</span> <span class="text-blue-400">range</span>(n)]</div>
+                                <div class="pl-6 mt-1">solutions = []</div>
+                                <div class="pl-6 mt-1"><span class="text-blue-400">backtrack</span>(board, <span class="text-orange-400">0</span>, solutions)</div>
+                                <div class="pl-6 mt-1"><span class="text-pink-500">return</span> solutions</div>
+                                
+                                <div class="absolute top-[88px] left-[155px] w-2 h-[15px] bg-blue-500/70 animate-pulse"></div>
+                            </div>
+
+                            <!-- Overlay Video PIP -->
+                            <div class="absolute bottom-4 right-4 w-40 h-28 bg-[#111] border border-white/10 rounded-lg shadow-2xl flex items-center justify-center overflow-hidden ring-1 ring-white/5">
+                                <div class="w-full h-full bg-gradient-to-tr from-[#1a1a2e] to-[#16213e] relative flex items-center justify-center">
+                                    <div class="w-12 h-12 rounded-full bg-white/10 border border-white/5 flex items-center justify-center text-white/50 text-xl"><i class="fa-regular fa-user"></i></div>
+                                    <div class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[9px] text-white font-sans flex items-center gap-1.5 font-medium border border-white/10">
+                                        <i class="fa-solid fa-microphone-lines text-green-400"></i> Sarah
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -104,7 +162,7 @@
 </div>
 
 <!-- 4. Deep Dive: Candidate Experience -->
-<div class="py-24 max-w-7xl mx-auto w-full px-6 border-t border-white/5">
+<div id="deep-dive" class="py-24 max-w-7xl mx-auto w-full px-6 border-t border-white/5">
     <div class="flex flex-col lg:flex-row items-center gap-16">
         <div class="w-full lg:w-1/2">
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/5 border border-white/10 mb-6">
@@ -122,21 +180,36 @@
         </div>
         <div class="w-full lg:w-1/2">
             <div class="premium-card p-6 aspect-video relative overflow-hidden flex flex-col justify-center border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.03)]">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-white/10"></div>
+                <div class="flex items-center gap-4 mb-6 pb-6 border-b border-white/5">
+                    <div class="w-14 h-14 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xl"> JD </div>
                     <div>
-                        <div class="w-32 h-4 bg-white/20 rounded mb-2"></div>
-                        <div class="w-20 h-3 bg-white/10 rounded"></div>
+                        <div class="text-white font-bold text-lg mb-1">John Doe</div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="text-gray-400">Status:</span>
+                            <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-medium border border-blue-500/30">Interview Assigned</span>
+                        </div>
                     </div>
                 </div>
-                <div class="space-y-3">
-                    <div class="w-full h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center px-4 justify-between">
-                        <div class="w-24 h-3 bg-blue-400/50 rounded"></div>
-                        <div class="w-8 h-3 bg-blue-400/50 rounded"></div>
+                <div class="space-y-4 flex-grow">
+                    <div class="w-full rounded-lg bg-blue-500/5 border border-blue-500/20 flex flex-col justify-center p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="text-white text-sm font-bold">Interview with Sarah Jenkins</h4>
+                                <p class="text-gray-400 text-xs mt-1"><i class="fa-regular fa-clock text-blue-400 mr-1"></i> Oct 12, 10:00 AM PST</p>
+                            </div>
+                            <div class="bg-blue-500 hover:bg-blue-600 cursor-pointer text-white text-xs font-bold px-4 py-2 rounded shadow-lg transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-video"></i> Join Call
+                            </div>
+                        </div>
                     </div>
-                    <div class="w-full h-12 rounded-lg bg-white/5 border border-white/5 flex items-center px-4 justify-between">
-                        <div class="w-32 h-3 bg-white/20 rounded"></div>
-                        <div class="w-8 h-3 bg-white/10 rounded"></div>
+                    <div class="w-full rounded-lg bg-white/5 border border-white/5 flex justify-between items-center p-4 opacity-70">
+                        <div>
+                            <h4 class="text-gray-300 text-sm font-bold">Application Submitted</h4>
+                            <p class="text-gray-500 text-xs mt-1">Oct 1, 2026</p>
+                        </div>
+                        <div class="bg-white/10 text-gray-400 text-xs font-bold px-3 py-1.5 rounded">
+                            <i class="fa-solid fa-check mr-1"></i> Completed
+                        </div>
                     </div>
                 </div>
             </div>
@@ -164,14 +237,46 @@
         <div class="w-full lg:w-1/2">
             <div class="premium-card p-2 aspect-video relative overflow-hidden flex flex-col border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.03)]">
                 <div class="flex-grow flex">
-                    <div class="w-2/3 border-r border-white/5 bg-black rounded-l-lg flex items-center justify-center relative">
-                        <i class="fa-solid fa-video text-3xl text-white/10"></i>
-                        <div class="absolute bottom-2 right-2 w-16 h-12 bg-[#111] rounded border border-white/10"></div>
+                    <!-- Video Area -->
+                    <div class="w-2/3 border-r border-white/5 bg-[#080808] rounded-l-lg flex flex-col relative overflow-hidden">
+                        <div class="w-full h-full bg-gradient-to-br from-[#1a1a2e] to-[#0A0A0A] flex items-center justify-center relative">
+                            <div class="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 text-3xl"><i class="fa-regular fa-user"></i></div>
+                            <div class="absolute bottom-3 left-3 bg-black/60 backdrop-blur border border-white/10 px-3 py-1 rounded text-xs text-white flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> John Doe
+                            </div>
+                        </div>
+                        <!-- PIP -->
+                        <div class="absolute bottom-3 right-3 w-24 h-16 bg-[#111] border border-white/10 rounded overflow-hidden shadow-2xl">
+                            <div class="w-full h-full bg-[#1A1A1A] flex items-center justify-center">
+                                <div class="text-white/20 text-xs"><i class="fa-solid fa-user"></i></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="w-1/3 bg-[#0A0A0A] rounded-r-lg p-4 flex flex-col gap-4">
-                        <div class="w-full h-4 bg-white/10 rounded"></div>
-                        <div class="w-full h-24 bg-white/5 rounded border border-white/5"></div>
-                        <div class="w-full h-8 bg-blue-500/20 rounded mt-auto"></div>
+                    <!-- Evaluation Panel -->
+                    <div class="w-1/3 bg-[#0A0A0A] rounded-r-lg p-3 flex flex-col gap-3 text-left">
+                        <div class="border-b border-white/5 pb-2">
+                            <div class="text-white text-xs font-bold mb-0.5">Evaluation</div>
+                            <div class="text-[#666] text-[9px]">John Doe • Software Eng</div>
+                        </div>
+                        
+                        <div class="space-y-1 text-[9px]">
+                            <label class="text-gray-400 font-bold uppercase tracking-widest">Score / 100</label>
+                            <div class="w-full h-7 bg-[#111] border border-white/10 rounded flex items-center px-2 text-white font-mono">
+                                92<span class="animate-pulse ml-0.5">|</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1 text-[9px] flex-grow">
+                            <label class="text-gray-400 font-bold uppercase tracking-widest">Notes</label>
+                            <div class="w-full h-full min-h-[40px] bg-[#111] border border-white/10 rounded p-2 text-gray-300 font-mono text-[8px] leading-relaxed">
+                                - Strong algos<br>
+                                - Communicates well
+                            </div>
+                        </div>
+                        
+                        <div class="w-full h-7 bg-blue-500 hover:bg-blue-600 rounded flex items-center justify-center text-white text-[9px] font-bold mt-auto cursor-pointer transition">
+                            Submit Score
+                        </div>
                     </div>
                 </div>
             </div>
@@ -197,23 +302,65 @@
             </ul>
         </div>
         <div class="w-full lg:w-1/2">
-            <div class="premium-card p-6 aspect-video relative overflow-hidden flex flex-col gap-2 border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.03)]">
-                <div class="h-6 w-full flex items-center border-b border-white/5 pb-2 mb-2">
-                    <div class="w-1/4 h-2 bg-white/20 rounded"></div>
-                    <div class="w-1/4 h-2 bg-white/20 rounded ml-auto"></div>
+            <div class="premium-card p-6 aspect-video relative overflow-hidden flex flex-col gap-3 border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.03)] text-left">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-white font-bold text-sm">Candidate Pipeline</h3>
+                    <div class="bg-white/10 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-white/20 transition"><i class="fa-solid fa-filter"></i> Filter</div>
                 </div>
+                
+                <div class="w-full grid grid-cols-4 text-[10px] text-gray-500 font-bold uppercase tracking-widest border-b border-white/5 pb-2 mb-1 px-2">
+                    <div class="col-span-2">Candidate</div>
+                    <div>Status</div>
+                    <div class="text-right">Score</div>
+                </div>
+                
                 <!-- Rows -->
-                <div class="h-10 bg-white/5 rounded-md w-full flex items-center px-4 justify-between">
-                    <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-white/20"></div><div class="w-20 h-2 bg-white/20 rounded"></div></div>
-                    <div class="w-12 h-4 bg-green-500/20 rounded text-[8px] flex items-center justify-center text-green-500">92/100</div>
+                <div class="w-full bg-white/5 hover:bg-white/10 transition rounded-lg flex items-center p-2 grid grid-cols-4 gap-2 cursor-pointer border border-transparent hover:border-white/10">
+                    <div class="col-span-2 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">JD</div>
+                        <div>
+                            <div class="text-white font-bold text-xs">John Doe</div>
+                            <div class="text-gray-500 text-[10px]">Frontend Eng</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded text-[9px] font-bold">COMPLETED</span>
+                    </div>
+                    <div class="flex justify-end items-center text-white font-mono text-xs font-bold">
+                        92/100
+                    </div>
                 </div>
-                <div class="h-10 bg-white/5 rounded-md w-full flex items-center px-4 justify-between">
-                    <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-white/20"></div><div class="w-24 h-2 bg-white/20 rounded"></div></div>
-                    <div class="w-12 h-4 bg-yellow-500/20 rounded text-[8px] flex items-center justify-center text-yellow-500">ASSIGN</div>
+                
+                <div class="w-full bg-white/5 hover:bg-white/10 transition rounded-lg flex items-center p-2 grid grid-cols-4 gap-2 cursor-pointer border border-transparent hover:border-white/10">
+                    <div class="col-span-2 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-[10px]">AS</div>
+                        <div>
+                            <div class="text-white font-bold text-xs">Alice Smith</div>
+                            <div class="text-gray-500 text-[10px]">Backend Eng</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-bold">ASSIGN</span>
+                    </div>
+                    <div class="flex justify-end items-center text-gray-500 font-mono text-xs font-bold">
+                        --/100
+                    </div>
                 </div>
-                <div class="h-10 bg-white/5 rounded-md w-full flex items-center px-4 justify-between">
-                    <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-white/20"></div><div class="w-16 h-2 bg-white/20 rounded"></div></div>
-                    <div class="w-12 h-4 bg-white/10 rounded text-[8px] flex items-center justify-center text-white/50">PENDING</div>
+                
+                <div class="w-full bg-white/5 hover:bg-white/10 transition rounded-lg flex items-center p-2 grid grid-cols-4 gap-2 cursor-pointer border border-transparent hover:border-white/10">
+                    <div class="col-span-2 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-[10px]">BW</div>
+                        <div>
+                            <div class="text-white font-bold text-xs">Bob Wilson</div>
+                            <div class="text-gray-500 text-[10px]">DevOps</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="bg-white/5 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold">PENDING</span>
+                    </div>
+                    <div class="flex justify-end items-center text-gray-500 font-mono text-xs font-bold">
+                        --/100
+                    </div>
                 </div>
             </div>
         </div>
