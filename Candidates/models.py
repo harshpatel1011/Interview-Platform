@@ -7,9 +7,12 @@ class CandidateProfile(models.Model):
     applied_date = models.DateTimeField(auto_now_add=True)
     
     STATUS_CHOICES = (
-        ('PENDING', 'Pending Assignment'),
-        ('ASSIGNED', 'Interviewer Assigned'),
-        ('INTERVIEWED', 'Interview Completed'),
+        ('PENDING', 'Applied'),
+        ('ASSIGNED', 'Interviewing'),
+        ('INTERVIEWED', 'Evaluated'),
+        ('OFFERED', 'Offered'),
+        ('HIRED', 'Hired'),
+        ('REJECTED', 'Rejected'),
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     score = models.IntegerField(null=True, blank=True)

@@ -32,7 +32,7 @@ def dashboard(request):
         return redirect('home')
         
     profile = request.user.candidate_profile
-    interviews = profile.interviews.all().order_by('scheduled_time')
+    interviews = profile.interviews.all().order_by('-scheduled_time')[:2]
     
     return render(request, 'candidates/dashboard.html', {
         'profile': profile,
