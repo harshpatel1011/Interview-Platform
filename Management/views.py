@@ -23,7 +23,7 @@ def assign_interviewer(request, candidate_id):
     candidate = get_object_or_404(CandidateProfile, id=candidate_id)
     
     if request.method == 'POST':
-        form = AssignInterviewerForm(request.POST)
+        form = AssignInterviewerForm(request.POST, candidate=candidate)
         if form.is_valid():
             interview = form.save(commit=False)
             interview.candidate = candidate
@@ -49,7 +49,7 @@ def assign_interviewer(request, candidate_id):
             
             return redirect('management_dashboard')
     else:
-        form = AssignInterviewerForm()
+        form = AssignInterviewerForm(candidate=candidate)
         
     return render(request, 'management/assign.html', {'form': form, 'candidate': candidate})
 
@@ -66,6 +66,12 @@ def candidate_list(request):
     if request.user.role != 'MANAGEMENT': return redirect('home')
     candidates = User.objects.filter(role='CANDIDATE').select_related('candidate_profile').order_by('-id')
     return render(request, 'management/candidate_list.html', {'candidates': candidates})
+
+@login_required
+def candidate_detail(request, id):
+    if request.user.role != 'MANAGEMENT': return redirect('home')
+    candidate = get_object_or_404(CandidateProfile, id=id)
+    return render(request, 'management/candidate_detail.html', {'candidate': candidate})
 
 @login_required
 def candidate_create(request):
@@ -110,6 +116,12 @@ def interviewer_list(request):
     if request.user.role != 'MANAGEMENT': return redirect('home')
     interviewers = User.objects.filter(role='INTERVIEWER').select_related('interviewer_profile').order_by('-id')
     return render(request, 'management/interviewer_list.html', {'interviewers': interviewers})
+
+@login_required
+def interviewer_detail(request, id):
+    if request.user.role != 'MANAGEMENT': return redirect('home')
+    interviewer = get_object_or_404(User, id=id, role='INTERVIEWER')
+    return render(request, 'management/interviewer_detail.html', {'interviewer': interviewer})
 
 @login_required
 def interviewer_create(request):
@@ -169,6 +181,16 @@ def interview_create(request):
             interview.meeting_link = f"/interviewer/room/{meeting_id}/"
             interview.save()
             
+            # Automatically update Candidate pipeline status
+            candidate = interview.candidate
+            if interview.status == 'COMPLETED':
+                candidate.status = 'INTERVIEWED'
+            elif interview.status == 'SCHEDULED':
+                candidate.status = 'ASSIGNED'
+            elif interview.status == 'CANCELLED':
+                candidate.status = 'PENDING'
+            candidate.save()
+            
             # Send Calendar Invites
             from .email_utils import send_interview_invites
             try:
@@ -180,7 +202,17 @@ def interview_create(request):
             return redirect('management_interview_list')
     else:
         form = InterviewCRUDForm()
-    return render(request, 'management/interview_form.html', {'form': form, 'title': 'Schedule Interview'})
+        
+    import json
+    candidate_designations = {
+        c.id: [r.strip() for r in (c.designations or 'Unspecified').split(',') if r.strip()]
+        for c in CandidateProfile.objects.all()
+    }
+    return render(request, 'management/interview_form.html', {
+        'form': form, 
+        'title': 'Schedule Interview',
+        'candidate_designations_json': json.dumps(candidate_designations)
+    })
 
 @login_required
 def interview_edit(request, id):
@@ -193,18 +225,40 @@ def interview_edit(request, id):
             updated_interview = form.save()
             new_status = updated_interview.status
             
-            if old_status != new_status and new_status in ['CANCELLED', 'COMPLETED']:
-                from .email_utils import send_interview_update
-                try:
-                    send_interview_update(request, updated_interview, new_status)
-                except Exception as e:
-                    print(f"Failed to send update emails: {e}")
+            if old_status != new_status:
+                if new_status in ['CANCELLED', 'COMPLETED']:
+                    from .email_utils import send_interview_update
+                    try:
+                        send_interview_update(request, updated_interview, new_status)
+                    except Exception as e:
+                        print(f"Failed to send update emails: {e}")
+                
+                # Automatically update Candidate pipeline status
+                candidate = updated_interview.candidate
+                if new_status == 'COMPLETED':
+                    candidate.status = 'INTERVIEWED' # Evaluated
+                elif new_status == 'SCHEDULED':
+                    candidate.status = 'ASSIGNED' # Interviewing
+                elif new_status == 'CANCELLED':
+                    candidate.status = 'PENDING' # Applied
+                candidate.save()
             
             messages.success(request, 'Interview updated successfully.')
             return redirect('management_interview_list')
     else:
         form = InterviewCRUDForm(instance=interview)
-    return render(request, 'management/interview_form.html', {'form': form, 'title': 'Edit Interview', 'interview': interview})
+        
+    import json
+    candidate_designations = {
+        c.id: [r.strip() for r in (c.designations or 'Unspecified').split(',') if r.strip()]
+        for c in CandidateProfile.objects.all()
+    }
+    return render(request, 'management/interview_form.html', {
+        'form': form, 
+        'title': 'Edit Interview', 
+        'interview': interview,
+        'candidate_designations_json': json.dumps(candidate_designations)
+    })
 
 @login_required
 def interview_delete(request, id):

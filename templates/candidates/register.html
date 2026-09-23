@@ -93,8 +93,11 @@
                     </div>
                     
                     <div class="space-y-1">
-                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wide">Upload Resume (PDF)</label>
-                        {{ form.resume }}
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wide">Confirm Password</label>
+                        {{ form.confirm_password }}
+                        {% if form.confirm_password.errors %}
+                            <p class="text-red-400 text-xs mt-1 bg-red-500/10 p-2 rounded"><i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ form.confirm_password.errors.0 }}</p>
+                        {% endif %}
                     </div>
                     
                     <button type="submit" class="w-full btn-primary text-black font-bold py-3.5 px-4 rounded-lg mt-8 flex justify-center items-center gap-2 shadow-lg hover:scale-[1.02] transition-transform">

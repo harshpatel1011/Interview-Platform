@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% block footer %}{% endblock %}
+{% block header_nav %}{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto mt-10 animate-slide-up">
     <div class="mb-6 flex items-center justify-between">
@@ -30,8 +33,14 @@
                             {{ form.interviewer }}
                             {{ form.interviewer.errors }}
                         </div>
-                        
+
                         <div class="space-y-2 md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Designation / Role</label>
+                            {{ form.designation }}
+                            {{ form.designation.errors }}
+                        </div>
+                        
+                        <div class="space-y-2">
                             <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Scheduled Date & Time</label>
                             {{ form.scheduled_time }}
                             {{ form.scheduled_time.errors }}
@@ -41,18 +50,6 @@
                             <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Status</label>
                             {{ form.status }}
                             {{ form.status.errors }}
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Score</label>
-                            {{ form.score }}
-                            {{ form.score.errors }}
-                        </div>
-                        
-                        <div class="space-y-2 md:col-span-2">
-                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Feedback</label>
-                            {{ form.feedback }}
-                            {{ form.feedback.errors }}
                         </div>
                     </div>
                     
@@ -66,4 +63,110 @@
         </div>
     </div>
 </div>
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<style>
+    /* Dark mode styling for TomSelect to match the site's theme */
+    .ts-wrapper {
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    .ts-control {
+        background-color: #111 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 0.75rem !important; /* rounded-xl */
+        padding: 0.875rem !important; /* p-3.5 */
+        box-shadow: none !important;
+        min-height: auto !important;
+        display: flex;
+        align-items: center;
+    }
+    .ts-control > input {
+        color: white !important;
+    }
+    .ts-dropdown {
+        background-color: #111 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 0.5rem !important;
+    }
+    .ts-dropdown .active {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+    }
+    .ts-dropdown .option {
+        padding: 10px;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize TomSelect on Candidate and Interviewer
+        let candidateTs;
+        if (document.getElementById('id_candidate')) {
+            candidateTs = new TomSelect('#id_candidate', {
+                create: false,
+                sortField: { field: "text", direction: "asc" }
+            });
+        }
+        if (document.getElementById('id_interviewer')) {
+            new TomSelect('#id_interviewer', {
+                create: false,
+                sortField: { field: "text", direction: "asc" }
+            });
+        }
+
+        const candidateDesignations = {{ candidate_designations_json|safe }};
+        const candidateSelect = document.getElementById("id_candidate");
+        const designationSelect = document.getElementById("id_designation");
+        
+        // Save the currently selected designation if any (useful for edit page)
+        let currentDesignation = "{{ interview.designation|default:'' }}";
+        if (!currentDesignation && designationSelect.value) {
+            currentDesignation = designationSelect.value;
+        }
+
+        function updateDesignations() {
+            const candidateId = candidateSelect.value;
+            designationSelect.innerHTML = ""; // clear
+            
+            if (candidateId && candidateDesignations[candidateId]) {
+                const roles = candidateDesignations[candidateId];
+                roles.forEach(role => {
+                    const option = document.createElement("option");
+                    option.value = role;
+                    option.textContent = role;
+                    if (role === currentDesignation) {
+                        option.selected = true;
+                    }
+                    designationSelect.appendChild(option);
+                });
+                
+                // if there are no options added (e.g. empty array), add a fallback
+                if (roles.length === 0) {
+                    const option = document.createElement("option");
+                    option.value = "Unspecified";
+                    option.textContent = "Unspecified";
+                    designationSelect.appendChild(option);
+                }
+            } else {
+                const option = document.createElement("option");
+                option.value = "Unspecified";
+                option.textContent = "Unspecified";
+                designationSelect.appendChild(option);
+            }
+        }
+
+        if (candidateTs) {
+            candidateTs.on('change', updateDesignations);
+            updateDesignations();
+        } else if (candidateSelect) {
+            candidateSelect.addEventListener("change", updateDesignations);
+            updateDesignations(); // initialize on load
+        }
+    });
+</script>
 {% endblock %}

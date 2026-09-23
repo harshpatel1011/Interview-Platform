@@ -13,3 +13,19 @@ class ScoreForm(forms.ModelForm):
     class Meta:
         model = Interview
         fields = ['score', 'feedback']
+
+from .models import InterviewerProfile
+
+class InterviewerProfileUpdateForm(forms.ModelForm):
+    name = forms.CharField(
+        max_length=150, 
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white'})
+    )
+    
+    class Meta:
+        model = InterviewerProfile
+        fields = ['department']
+        widgets = {
+            'department': forms.TextInput(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white'}),
+        }

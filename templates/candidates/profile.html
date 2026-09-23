@@ -8,7 +8,12 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
             <h2 class="text-3xl font-extrabold text-white tracking-tight">Candidate Profile</h2>
-            <p class="text-gray-400 mt-1">Manage your personal information and resume.</p>
+            <p class="text-gray-400 mt-1">Your detailed application and profile status.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'candidate_settings' %}" class="btn-primary py-2 px-5 rounded-lg font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+            </a>
         </div>
     </div>
 
@@ -19,102 +24,75 @@
             <div class="premium-card p-6 border border-white/5 bg-[#050505]">
                 <div class="flex items-center gap-4 mb-8 pb-8 border-b border-white/5">
                     <div class="w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl font-bold border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-                        {{ user.name.0|upper }}
+                        {{ profile.user.name.0|upper }}
                     </div>
                     <div>
-                        <h3 class="text-white font-bold text-xl">{{ user.name }}</h3>
-                        <p class="text-sm text-gray-500">{{ user.email }}</p>
+                        <h3 class="text-white font-bold text-xl">{{ profile.user.name }}</h3>
+                        <p class="text-sm text-gray-500">{{ profile.user.email }}</p>
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-white/10 text-gray-300 rounded text-[10px] font-bold uppercase tracking-wider">Candidate</span>
+                            <span class="px-2 py-0.5 {% if profile.status == 'PENDING' %}bg-yellow-500/10 text-yellow-400 border border-yellow-500/20{% elif profile.status == 'REJECTED' %}bg-red-500/10 text-red-400 border border-red-500/20{% else %}bg-green-500/10 text-green-400 border border-green-500/20{% endif %} rounded text-[10px] font-bold uppercase tracking-wider">
+                                {{ profile.get_status_display }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <h3 class="text-xl font-bold text-white mb-6">Update Settings</h3>
-                <form method="post" enctype="multipart/form-data" class="space-y-6">
-                    {% csrf_token %}
-                    
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Full Name</label>
-                        {{ form.name }}
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Update Resume</label>
-                        <div class="p-8 border border-dashed border-white/20 rounded-xl bg-black/50 text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition cursor-pointer relative overflow-hidden group flex flex-col items-center justify-center">
-                            {{ form.resume }}
-                            <!-- We use javascript to update the text when a file is chosen, but for now we'll just style the container -->
-                            <style>
-                                input[type="file"] {
-                                    position: absolute;
-                                    top: 0;
-                                    left: 0;
-                                    width: 100%;
-                                    height: 100%;
-                                    opacity: 0;
-                                    cursor: pointer;
-                                    z-index: 10;
-                                }
-                            </style>
-                            <div class="text-gray-500 group-hover:text-blue-400 transition flex flex-col items-center gap-3 relative z-0">
-                                <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
-                                <span class="text-sm font-medium">Click or drag new PDF to update</span>
-                                <span class="text-xs text-gray-600 mt-1" id="file-name-display">No file currently selected</span>
-                            </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                    <div class="p-4 bg-white/5 border border-white/5 rounded-xl">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-1">Applied Roles</span>
+                        <div class="text-white font-medium">
+                            {% if profile.designations %}
+                                {{ profile.designations }}
+                            {% else %}
+                                <span class="text-gray-500 italic">Not specified</span>
+                            {% endif %}
                         </div>
                     </div>
                     
-                    <script>
-                        // Simple script to update the displayed file name when a file is selected
-                        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-                            var fileName = e.target.files[0] ? e.target.files[0].name : 'No file currently selected';
-                            document.getElementById('file-name-display').textContent = 'Selected: ' + fileName;
-                            document.getElementById('file-name-display').classList.replace('text-gray-600', 'text-blue-400');
-                        });
-                    </script>
+                    <div class="p-4 bg-white/5 border border-white/5 rounded-xl">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-1">Application Date</span>
+                        <div class="text-white font-medium">{{ profile.applied_date|date:"F d, Y" }}</div>
+                    </div>
                     
-                    <div class="pt-4 flex justify-end">
-                        <button type="submit" class="btn-primary text-black font-bold py-3 px-6 rounded-lg flex items-center gap-2">
-                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
-                        </button>
+                    <div class="p-4 bg-white/5 border border-white/5 rounded-xl sm:col-span-2">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-2">Resume Document</span>
+                        {% if profile.resume %}
+                            <a href="{{ profile.resume.url }}" target="_blank" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primaryHover transition bg-primary/10 px-4 py-2 rounded-lg">
+                                <i class="fa-regular fa-file-pdf"></i> View Submitted Resume
+                            </a>
+                        {% else %}
+                            <div class="text-gray-500 italic text-sm">No resume uploaded yet. <a href="{% url 'candidate_settings' %}" class="text-blue-400 hover:underline">Upload one now</a>.</div>
+                        {% endif %}
                     </div>
-                </form>
-            </div>
-            
-            <div class="premium-card p-6 border border-white/5 bg-[#050505]">
-                <h3 class="text-xl font-bold text-white mb-6">Change Password</h3>
-                <form method="post" action="{% url 'candidate_change_password' %}" class="space-y-4">
-                    {% csrf_token %}
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Old Password</label>
-                        <input type="password" name="old_password" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" required>
+                </div>
+                
+                {% if profile.score or profile.feedback %}
+                <div class="mt-8 pt-8 border-t border-white/5">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Evaluation Results</h3>
+                    
+                    {% if profile.score %}
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                            <span class="text-2xl font-extrabold text-white">{{ profile.score }}</span>
+                        </div>
+                        <div>
+                            <div class="text-lg font-bold text-white">Overall Score</div>
+                            <div class="text-sm text-gray-500">Based on your interview performance</div>
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">New Password</label>
-                        <input type="password" name="new_password1" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" required>
+                    {% endif %}
+                    
+                    {% if profile.feedback %}
+                    <div class="mt-4 p-4 bg-white/5 rounded-xl border border-white/5 text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                        "{{ profile.feedback }}"
                     </div>
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Confirm New Password</label>
-                        <input type="password" name="new_password2" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" required>
-                    </div>
-                    <div class="pt-2">
-                        <button type="submit" class="btn-secondary w-full sm:w-auto text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-key"></i> Update Password
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="premium-card p-6 border border-red-500/20 bg-red-500/5">
-                <h3 class="text-xl font-bold text-red-500 mb-2">Danger Zone</h3>
-                <p class="text-gray-400 text-sm mb-6">Once you delete your account, there is no going back. Please be certain.</p>
-                <form method="post" action="{% url 'candidate_delete_account' %}" onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.');">
-                    {% csrf_token %}
-                    <button type="submit" class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/50 hover:border-red-500 font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-all">
-                        <i class="fa-solid fa-trash"></i> Delete Account
-                    </button>
-                </form>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
-
-        <!-- Sidebar -->
+        
         {% include 'candidates/sidebar.html' %}
     </div>
 </div>

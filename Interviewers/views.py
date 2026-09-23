@@ -10,7 +10,48 @@ def dashboard(request):
         
     profile = request.user.interviewer_profile
     interviews = profile.assigned_interviews.all().order_by('scheduled_time')
-    return render(request, 'interviewers/dashboard.html', {'interviews': interviews})
+    
+    # Calculate stats
+    total_interviews = interviews.count()
+    completed_interviews = interviews.filter(status='COMPLETED').count()
+    upcoming_interviews = interviews.filter(status='SCHEDULED').count()
+    
+    return render(request, 'interviewers/dashboard.html', {
+        'interviews': interviews,
+        'total_interviews': total_interviews,
+        'completed_interviews': completed_interviews,
+        'upcoming_interviews': upcoming_interviews,
+    })
+
+@login_required
+def profile_view(request):
+    if request.user.role != 'INTERVIEWER':
+        return redirect('home')
+    
+    profile = request.user.interviewer_profile
+    return render(request, 'interviewers/profile.html', {'profile': profile})
+
+@login_required
+def profile_settings(request):
+    if request.user.role != 'INTERVIEWER':
+        return redirect('home')
+        
+    profile = request.user.interviewer_profile
+    if request.method == 'POST':
+        from .forms import InterviewerProfileUpdateForm
+        form = InterviewerProfileUpdateForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            request.user.name = form.cleaned_data['name']
+            request.user.save()
+            form.save()
+            from django.contrib import messages
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('interviewer_profile')
+    else:
+        from .forms import InterviewerProfileUpdateForm
+        form = InterviewerProfileUpdateForm(instance=profile, initial={'name': request.user.name})
+        
+    return render(request, 'interviewers/settings.html', {'form': form})
 
 @login_required
 def video_room(request, meeting_id):
@@ -43,6 +84,7 @@ def video_room(request, meeting_id):
                 # Update candidate global score (if multiple interviews, this overwrites, for simplicity)
                 candidate = interview.candidate
                 candidate.score = interview.score
+                candidate.feedback = interview.feedback
                 candidate.status = 'INTERVIEWED'
                 candidate.save()
                 

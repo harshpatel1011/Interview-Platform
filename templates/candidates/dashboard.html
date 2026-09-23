@@ -8,7 +8,11 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
             <h2 class="text-3xl font-extrabold text-white tracking-tight">Candidate Dashboard</h2>
+            {% if profile.designations %}
+            <div class="mt-2 text-sm font-bold text-blue-400 uppercase tracking-wider">Applied for: {{ profile.designations }}</div>
+            {% else %}
             <p class="text-gray-400 mt-1">Track your interview status and join scheduled meetings.</p>
+            {% endif %}
         </div>
         <div class="flex items-center gap-3">
             <span class="px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-bold flex items-center gap-2">
@@ -36,7 +40,17 @@
                                         {{ interview.interviewer.user.name.0|upper }}
                                     </div>
                                     <div>
-                                        <h4 class="text-white font-bold text-lg">Interview with {{ interview.interviewer.user.name }}</h4>
+                                        <div class="flex items-center gap-3">
+                                            <h4 class="text-white font-bold text-lg">Interview with {{ interview.interviewer.user.name }}</h4>
+                                            {% if interview.status == 'SCHEDULED' %}
+                                                <span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">Scheduled</span>
+                                            {% elif interview.status == 'COMPLETED' %}
+                                                <span class="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-green-500/20">Completed</span>
+                                            {% else %}
+                                                <span class="bg-red-500/10 text-red-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-red-500/20">Cancelled</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-blue-400 text-xs font-bold uppercase tracking-wider mt-1 mb-1">{{ interview.designation }}</div>
                                         <p class="text-gray-500 text-sm mt-1 flex items-center gap-2">
                                             <i class="fa-regular fa-clock"></i> {{ interview.scheduled_time|date:"F j, Y - g:i A" }}
                                         </p>
@@ -50,6 +64,8 @@
                                         </a>
                                     {% elif interview.status == 'COMPLETED' %}
                                         <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-bold bg-white/5 text-gray-400 border border-white/10"><i class="fa-solid fa-check"></i> Completed</span>
+                                    {% elif interview.status == 'CANCELLED' %}
+                                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-bold bg-white/5 text-red-400 border border-red-500/20"><i class="fa-solid fa-xmark"></i> Cancelled</span>
                                     {% endif %}
                                 </div>
                             </div>

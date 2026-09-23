@@ -36,6 +36,11 @@
                     {% csrf_token %}
                     
                     <div class="space-y-1">
+                        <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-briefcase mr-1 text-primary"></i> Designation (Role)</label>
+                        {{ form.designation }}
+                    </div>
+
+                    <div class="space-y-1">
                         <label class="block text-sm font-medium text-gray-300"><i class="fa-solid fa-user-tie mr-1 text-primary"></i> Select Interviewer</label>
                         <div class="relative">
                             {{ form.interviewer }}
@@ -57,4 +62,52 @@
         </div>
     </div>
 </div>
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<style>
+    /* Dark mode styling for TomSelect to match the site's theme */
+    .ts-wrapper {
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    .ts-control {
+        background-color: #111 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 0.75rem !important; /* rounded-xl */
+        padding: 0.875rem !important; /* p-3.5 */
+        box-shadow: none !important;
+        min-height: auto !important;
+        display: flex;
+        align-items: center;
+    }
+    .ts-control > input {
+        color: white !important;
+    }
+    .ts-dropdown {
+        background-color: #111 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 0.5rem !important;
+    }
+    .ts-dropdown .active {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+    }
+    .ts-dropdown .option {
+        padding: 10px;
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (document.getElementById('id_interviewer')) {
+            new TomSelect('#id_interviewer', {
+                create: false,
+                sortField: { field: "text", direction: "asc" }
+            });
+        }
+    });
+</script>
 {% endblock %}

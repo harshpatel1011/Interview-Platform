@@ -3,16 +3,31 @@ from Interviewers.models import Interview, InterviewerProfile
 
 class AssignInterviewerForm(forms.ModelForm):
     scheduled_time = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500'})
+        widget=forms.DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local', 'class': 'w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500'}
+        )
     )
     interviewer = forms.ModelChoiceField(
         queryset=InterviewerProfile.objects.all(),
         widget=forms.Select(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white'})
     )
 
+    designation = forms.ChoiceField(
+        required=True,
+        widget=forms.Select(attrs={'class': 'w-full p-3.5 premium-input rounded-xl text-white'})
+    )
+
     class Meta:
         model = Interview
-        fields = ['interviewer', 'scheduled_time']
+        fields = ['designation', 'interviewer', 'scheduled_time']
+        
+    def __init__(self, *args, **kwargs):
+        candidate = kwargs.pop('candidate', None)
+        super().__init__(*args, **kwargs)
+        if candidate:
+            roles = [r.strip() for r in (candidate.designations or 'Unspecified').split(',') if r.strip()]
+            self.fields['designation'].choices = [(r, r) for r in roles]
 
 from django.contrib.auth import get_user_model
 from Candidates.models import CandidateProfile
@@ -26,8 +41,7 @@ class CandidateForm(forms.ModelForm):
     
     resume = forms.FileField(required=False, widget=forms.FileInput(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white'}))
     status = forms.ChoiceField(choices=CandidateProfile.STATUS_CHOICES, widget=forms.Select(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white'}))
-    score = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white'}))
-    feedback = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white', 'rows': 4}))
+    designations = forms.CharField(required=False, help_text="Comma-separated roles (e.g. Frontend Developer, Designer)", widget=forms.TextInput(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white', 'placeholder': 'e.g. Frontend Developer, Backend Developer'}))
 
     class Meta:
         model = User
@@ -40,8 +54,7 @@ class CandidateForm(forms.ModelForm):
             if hasattr(self.instance, 'candidate_profile'):
                 profile = self.instance.candidate_profile
                 self.fields['status'].initial = profile.status
-                self.fields['score'].initial = profile.score
-                self.fields['feedback'].initial = profile.feedback
+                self.fields['designations'].initial = profile.designations
         else:
             self.fields['password'].required = True
 
@@ -61,10 +74,8 @@ class CandidateForm(forms.ModelForm):
                 profile.resume = self.cleaned_data['resume']
             
             profile.status = self.cleaned_data['status']
-            if self.cleaned_data.get('score') is not None:
-                profile.score = self.cleaned_data['score']
-            if self.cleaned_data.get('feedback'):
-                profile.feedback = self.cleaned_data['feedback']
+            if self.cleaned_data.get('designations') is not None:
+                profile.designations = self.cleaned_data['designations']
                 
             profile.save()
             
@@ -118,16 +129,21 @@ class InterviewCRUDForm(forms.ModelForm):
         queryset=InterviewerProfile.objects.all(),
         widget=forms.Select(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white'})
     )
+    designation = forms.CharField(
+        required=True,
+        widget=forms.Select(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white'})
+    )
     scheduled_time = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white placeholder-gray-500'})
+        widget=forms.DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local', 'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white placeholder-gray-500'}
+        )
     )
     status = forms.ChoiceField(
         choices=Interview.STATUS_CHOICES,
         widget=forms.Select(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white'})
     )
-    score = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white'}))
-    feedback = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white', 'rows': 4}))
 
     class Meta:
         model = Interview
-        fields = ['candidate', 'interviewer', 'scheduled_time', 'status', 'score', 'feedback']
+        fields = ['candidate', 'designation', 'interviewer', 'scheduled_time', 'status']

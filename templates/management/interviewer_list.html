@@ -42,7 +42,7 @@
                                         <div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs border border-blue-500/30">
                                             {{ interviewer.name.0|upper }}
                                         </div>
-                                        <div class="text-white font-bold">{{ interviewer.name }}</div>
+                                        <a href="{% url 'management_interviewer_detail' interviewer.id %}" class="text-white font-bold hover:text-blue-400 transition">{{ interviewer.name }}</a>
                                     </div>
                                 </td>
                                 <td class="p-4 text-gray-300 text-sm">{{ interviewer.email }}</td>

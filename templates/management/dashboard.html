@@ -18,74 +18,152 @@
 
         <!-- Main Content -->
         <div class="md:col-span-3 space-y-6">
-            <div class="premium-card overflow-hidden border border-white/5 bg-[#050505]">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-black/50 border-b border-white/10 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                                <th class="py-4 px-6 text-left">Candidate Name</th>
-                                <th class="py-4 px-6 text-left">Applied Date</th>
-                                <th class="py-4 px-6 text-center">Status</th>
-                                <th class="py-4 px-6 text-center">Score</th>
-                                <th class="py-4 px-6 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-300 text-sm divide-y divide-white/5">
-                            {% for candidate in candidates %}
-                            <tr class="hover:bg-white/5 transition-colors group">
-                                <td class="py-4 px-6 text-left whitespace-nowrap">
-                                    <div class="flex items-center gap-3">
-                                        <div class="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold border border-blue-500/30">
-                                            {{ candidate.user.name|make_list|first|upper }}
-                                        </div>
-                                        <div>
-                                            <span class="font-bold text-white block">{{ candidate.user.name }}</span>
-                                            <span class="text-xs text-gray-500">{{ candidate.user.email }}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6 text-left font-medium">
-                                    {{ candidate.applied_date|date:"M d, Y" }}
-                                </td>
-                                <td class="py-4 px-6 text-center">
-                                    {% if candidate.status == 'PENDING' %}
-                                        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded text-[10px] uppercase font-bold tracking-wider bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">Pending</span>
-                                    {% elif candidate.status == 'ASSIGNED' %}
-                                        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded text-[10px] uppercase font-bold tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">Assigned</span>
-                                    {% else %}
-                                        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded text-[10px] uppercase font-bold tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">Completed</span>
-                                    {% endif %}
-                                </td>
-                                <td class="py-4 px-6 text-center">
-                                    {% if candidate.score %}
-                                        <span class="font-bold text-green-400 text-lg">{{ candidate.score }}</span><span class="text-xs text-gray-500 font-medium">/100</span>
-                                    {% else %}
-                                        <span class="text-gray-600 font-bold">-</span>
-                                    {% endif %}
-                                </td>
-                                <td class="py-4 px-6 text-center">
-                                    <div class="flex items-center justify-center space-x-3 opacity-80 group-hover:opacity-100 transition-opacity">
-                                        <a href="{{ candidate.resume.url }}" target="_blank" class="p-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg border border-white/5 transition-all" title="View Resume">
-                                            <i class="fa-regular fa-file-pdf"></i>
-                                        </a>
-                                        <a href="{% url 'management_assign' candidate.id %}" class="p-2 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white rounded-lg border border-blue-500/20 transition-all" title="Assign Interviewer">
-                                            <i class="fa-solid fa-user-plus"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="py-12 px-6 text-center text-gray-500">
-                                    <div class="text-3xl mb-3"><i class="fa-solid fa-inbox text-gray-600"></i></div>
-                                    <p>No candidates found in the system yet.</p>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <style>
+                .status-tab.active { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+                .kanban-card { background: #111111; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; transition: border-color 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+            </style>
+            
+            <div class="space-y-10 min-h-[60vh]">
+                <!-- PENDING Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-inbox text-gray-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Applied</h2>
+                        <span class="bg-white/10 px-3 py-1 rounded-full text-xs font-bold text-white ml-2 count-badge" id="count-PENDING">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="PENDING"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- ASSIGNED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-video text-blue-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Interviewing</h2>
+                        <span class="bg-blue-500/20 px-3 py-1 rounded-full text-xs font-bold text-blue-400 ml-2 count-badge" id="count-ASSIGNED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="ASSIGNED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- INTERVIEWED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-clipboard-check text-yellow-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Evaluated</h2>
+                        <span class="bg-yellow-500/20 px-3 py-1 rounded-full text-xs font-bold text-yellow-400 ml-2 count-badge" id="count-INTERVIEWED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="INTERVIEWED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- OFFERED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-file-contract text-purple-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Offered</h2>
+                        <span class="bg-purple-500/20 px-3 py-1 rounded-full text-xs font-bold text-purple-400 ml-2 count-badge" id="count-OFFERED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="OFFERED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- HIRED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-handshake text-green-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Hired</h2>
+                        <span class="bg-green-500/20 px-3 py-1 rounded-full text-xs font-bold text-green-400 ml-2 count-badge" id="count-HIRED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="HIRED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- REJECTED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-ban text-red-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Rejected</h2>
+                        <span class="bg-red-500/20 px-3 py-1 rounded-full text-xs font-bold text-red-400 ml-2 count-badge" id="count-REJECTED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="REJECTED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
                 </div>
             </div>
+
+            <!-- Preload Cards (Hidden, moved via JS) -->
+            <div id="card-data" class="hidden">
+                {% for candidate in candidates %}
+                <div class="kanban-card flex flex-col" data-status="{{ candidate.status }}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-sm text-gray-300">
+                                {{ candidate.user.name|make_list|first|upper }}
+                            </div>
+                            <div>
+                                <a href="{% url 'management_candidate_detail' candidate.id %}" class="font-bold text-white text-sm hover:text-blue-400 transition">{{ candidate.user.name }}</a>
+                                {% if candidate.designations %}
+                                <div class="text-[10px] text-blue-400/80 font-bold uppercase tracking-wider mt-0.5">{{ candidate.designations }}</div>
+                                {% else %}
+                                <div class="text-xs text-gray-500">{{ candidate.user.email }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-gray-500 mb-4 mt-4">
+                        <span>Applied: {{ candidate.applied_date|date:"M d, Y" }}</span>
+                        {% if candidate.latest_interview and candidate.latest_interview.score %}
+                        <span class="font-bold text-green-400" title="Latest Interview Score"><i class="fa-solid fa-star text-green-500/50 mr-1"></i>{{ candidate.latest_interview.score }}/100</span>
+                        {% elif candidate.score %}
+                        <span class="font-bold text-green-400"><i class="fa-solid fa-star text-green-500/50 mr-1"></i>{{ candidate.score }}/100</span>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-white/5">
+                        <a href="{{ candidate.resume.url }}" target="_blank" class="flex-1 py-2 text-center bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded border border-white/5 transition-all text-xs font-bold" title="View Resume">
+                            <i class="fa-regular fa-file-pdf mr-1"></i> Resume
+                        </a>
+                        <a href="{% url 'management_assign' candidate.id %}" class="flex-1 py-2 text-center bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white rounded border border-blue-500/20 transition-all text-xs font-bold" title="Assign Interviewer">
+                            <i class="fa-solid fa-user-plus mr-1"></i> Assign
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const cardDataContainer = document.getElementById('card-data');
+                    const cards = Array.from(cardDataContainer.children);
+                    
+                    // Populate cards into panels
+                    cards.forEach(card => {
+                        const status = card.getAttribute('data-status');
+                        const panel = document.querySelector(`.status-panel[data-status="${status}"]`);
+                        if (panel) panel.appendChild(card);
+                    });
+                    
+                    // Update counts and hide empty sections
+                    const statuses = ['PENDING', 'ASSIGNED', 'INTERVIEWED', 'OFFERED', 'HIRED', 'REJECTED'];
+                    statuses.forEach(status => {
+                        const panel = document.querySelector(`.status-panel[data-status="${status}"]`);
+                        const count = panel ? panel.children.length : 0;
+                        document.getElementById(`count-${status}`).textContent = count;
+                        
+                        const section = panel.closest('.status-section');
+                        
+                        // Hide the empty state boxes entirely
+                        const emptyState = section.querySelector('.empty-state');
+                        if(emptyState) {
+                            emptyState.style.display = 'none';
+                        }
+                        
+                        // If no candidates, hide the whole section to keep it clean
+                        if (count === 0) {
+                            section.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
         </div>
     </div>
 </div>

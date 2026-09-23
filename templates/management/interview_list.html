@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% block footer %}{% endblock %}
+{% block header_nav %}{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto animate-slide-up mt-8">
     <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
@@ -36,11 +39,19 @@
                             {% for interview in interviews %}
                             <tr class="hover:bg-white/5 transition group">
                                 <td class="p-4">
-                                    <div class="text-white font-bold">{{ interview.candidate.user.name }}</div>
-                                    <div class="text-xs text-gray-500">{{ interview.candidate.user.email }}</div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold border border-blue-500/30 text-xs">
+                                            {{ interview.candidate.user.name|make_list|first|upper }}
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'management_candidate_detail' interview.candidate.id %}" class="font-bold text-white block hover:text-blue-400 transition">{{ interview.candidate.user.name }}</a>
+                                            <span class="text-[10px] uppercase font-bold tracking-wider text-blue-400/80">{{ interview.designation }}</span>
+                                            <div class="text-xs text-gray-500">{{ interview.candidate.user.email }}</div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="p-4">
-                                    <div class="text-white font-bold">{{ interview.interviewer.user.name }}</div>
+                                    <a href="{% url 'management_interviewer_detail' interview.interviewer.user.id %}" class="text-white font-bold block hover:text-blue-400 transition">{{ interview.interviewer.user.name }}</a>
                                     <div class="text-xs text-gray-500">{{ interview.interviewer.department|default:"-" }}</div>
                                 </td>
                                 <td class="p-4 text-gray-300 text-sm font-medium">
@@ -62,9 +73,11 @@
                                             <i class="fa-solid fa-video"></i>
                                         </a>
                                         {% endif %}
+                                        {% if interview.status != 'CANCELLED' %}
                                         <a href="{% url 'management_interview_edit' interview.id %}" class="text-gray-400 hover:text-yellow-400 transition" title="Edit">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
+                                        {% endif %}
                                         <form method="post" action="{% url 'management_interview_delete' interview.id %}" class="inline-block" onsubmit="return confirm('Delete this interview? This cannot be undone.');">
                                             {% csrf_token %}
                                             <button type="submit" class="text-gray-400 hover:text-red-400 transition" title="Delete">

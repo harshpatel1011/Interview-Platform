@@ -14,10 +14,7 @@ def register(request):
             user.save()
             
             # Create profile
-            CandidateProfile.objects.create(
-                user=user,
-                resume=request.FILES['resume']
-            )
+            CandidateProfile.objects.create(user=user)
             
             login(request, user)
             return redirect('candidate_dashboard')
@@ -40,6 +37,14 @@ def dashboard(request):
     })
 
 @login_required
+def profile_view(request):
+    if request.user.role != 'CANDIDATE':
+        return redirect('home')
+        
+    profile = request.user.candidate_profile
+    return render(request, 'candidates/profile.html', {'profile': profile})
+
+@login_required
 def profile_settings(request):
     if request.user.role != 'CANDIDATE':
         return redirect('home')
@@ -59,7 +64,7 @@ def profile_settings(request):
         from .forms import CandidateProfileUpdateForm
         form = CandidateProfileUpdateForm(instance=profile, initial={'name': request.user.name})
         
-    return render(request, 'candidates/profile.html', {'form': form})
+    return render(request, 'candidates/settings.html', {'form': form})
 
 @login_required
 def interview_history(request):
@@ -67,7 +72,7 @@ def interview_history(request):
         return redirect('home')
         
     profile = request.user.candidate_profile
-    past_interviews = profile.interviews.filter(status='COMPLETED').order_by('-scheduled_time')
+    past_interviews = profile.interviews.filter(status__in=['COMPLETED', 'CANCELLED']).order_by('-scheduled_time')
     
     return render(request, 'candidates/history.html', {'interviews': past_interviews})
 

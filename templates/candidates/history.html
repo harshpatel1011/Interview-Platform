@@ -28,7 +28,7 @@
                             {% for interview in interviews %}
                                 <div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition group">
                                     <div class="col-span-5">
-                                        <div class="text-white font-bold">Software Engineer</div>
+                                        <div class="text-white font-bold">{{ interview.designation }}</div>
                                         <div class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
                                             <i class="fa-solid fa-user text-gray-600"></i>
                                             {% if interview.interviewer %}
@@ -43,9 +43,15 @@
                                         <div class="text-gray-500 text-xs mt-1"><i class="fa-regular fa-clock mr-2 text-gray-600"></i>{{ interview.scheduled_time|time:"h:i A" }}</div>
                                     </div>
                                     <div class="col-span-3 text-right">
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">
-                                            <i class="fa-solid fa-check"></i> Completed
-                                        </span>
+                                        {% if interview.status == 'COMPLETED' %}
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">
+                                                <i class="fa-solid fa-check"></i> Completed
+                                            </span>
+                                        {% elif interview.status == 'CANCELLED' %}
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/20">
+                                                <i class="fa-solid fa-xmark"></i> Cancelled
+                                            </span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endfor %}
