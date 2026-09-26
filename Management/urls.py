@@ -24,4 +24,9 @@ urlpatterns = [
     path('interviews/add/', views.interview_create, name='management_interview_create'),
     path('interviews/<int:id>/edit/', views.interview_edit, name='management_interview_edit'),
     path('interviews/<int:id>/delete/', views.interview_delete, name='management_interview_delete'),
+    
+    # Question Bank
+    path('questions/', views.question_list, name='management_question_list'),
+    path('questions/add/', views.question_create, name='management_question_create'),
+    path('questions/<int:id>/delete/', views.question_delete, name='management_question_delete'),
 ]

@@ -1,0 +1,20 @@
+- [x] **Phase 1: Grading Matrix & Question Bank**
+  - [x] Update `Interview` model with `technical_score`, `communication_score`, `problem_solving_score`.
+  - [x] Calculate average `score` automatically on save.
+  - [x] Update Interviewer Video Room to use the 3-metric grading slider form.
+  - [x] Create `QuestionBank` model for role-specific questions.
+  - [x] Add "Question Bank" admin view to the Management dashboard.
+  - [x] Display relevant questions dynamically inside the Interviewer's Video Room.
+- [x] **Phase 2: Interactive Coding Whiteboard**
+  - [x] Integrate Monaco Editor via CDN.
+  - [x] Update `room.html` grid layout for side-by-side Video and Code components.
+  - [x] Implement Language Switcher (JS, Python, Java, C++).
+- [x] **Phase 3: Advanced Analytics Dashboard**
+  - [x] Calculate pipeline metrics and pass rates via Django ORM.
+  - [x] Integrate Chart.js doughnut chart for Pipeline Health.
+  - [x] Build UI progress bars for Evaluation Pass/Fail Rates.
+- [x] **Phase 4: Automated Email Notifications**
+  - [x] Configure SMTP settings with app password.
+  - [x] Build HTML email templates for Invites, Updates, and Cancellations.
+  - [x] Generate `.ics` calendar attachments automatically.
+  - [x] Hook into Interview creation and update paths.

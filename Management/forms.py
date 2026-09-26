@@ -147,3 +147,21 @@ class InterviewCRUDForm(forms.ModelForm):
     class Meta:
         model = Interview
         fields = ['candidate', 'designation', 'interviewer', 'scheduled_time', 'status']
+
+from .models import Question
+
+class QuestionForm(forms.ModelForm):
+    designation = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white placeholder-gray-500', 'placeholder': 'e.g. Frontend Developer'})
+    )
+    text = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white placeholder-gray-500', 'rows': 3, 'placeholder': 'Write the question here...'})
+    )
+    expected_answer = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'w-full p-3.5 bg-[#111] border border-white/10 rounded-xl text-white placeholder-gray-500', 'rows': 3, 'placeholder': 'What should the interviewer look for?'})
+    )
+
+    class Meta:
+        model = Question
+        fields = ['designation', 'text', 'expected_answer']

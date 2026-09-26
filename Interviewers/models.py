@@ -24,9 +24,20 @@ class Interview(models.Model):
     scheduled_time = models.DateTimeField()
     meeting_link = models.URLField(max_length=500, blank=True, null=True)
     
-    # We could store score here or on the candidate profile. Storing it here allows multiple interviews per candidate.
+    # Detailed Grading Matrix
+    technical_score = models.IntegerField(null=True, blank=True)
+    communication_score = models.IntegerField(null=True, blank=True)
+    problem_solving_score = models.IntegerField(null=True, blank=True)
+    
+    # Overall calculated score
     score = models.IntegerField(null=True, blank=True)
     feedback = models.TextField(null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        # Auto-calculate the overall score average if all matrix scores exist
+        if self.technical_score is not None and self.communication_score is not None and self.problem_solving_score is not None:
+            self.score = int((self.technical_score + self.communication_score + self.problem_solving_score) / 3.0)
+        super().save(*args, **kwargs)
     
     STATUS_CHOICES = (
         ('SCHEDULED', 'Scheduled'),

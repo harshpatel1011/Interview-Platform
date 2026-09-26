@@ -92,8 +92,15 @@ def video_room(request, meeting_id):
         else:
             form = ScoreForm(instance=interview)
             
+    # Fetch questions for the interviewer
+    questions = []
+    if request.user.role == 'INTERVIEWER':
+        from Management.models import Question
+        questions = Question.objects.filter(designation__icontains=interview.designation)
+            
     return render(request, 'interviewers/room.html', {
         'interview': interview,
         'meeting_id': meeting_id,
-        'form': form
+        'form': form,
+        'questions': questions
     })

@@ -23,6 +23,43 @@
                 .kanban-card { background: #111111; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; transition: border-color 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
             </style>
             
+            <!-- Advanced Analytics Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Pipeline Chart -->
+                <div class="glass-panel p-5 rounded-2xl border border-white/10 shadow-2xl">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-filter text-primary"></i> Pipeline Health</h3>
+                    <div class="h-[200px] w-full flex items-center justify-center">
+                        <canvas id="pipelineChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Evaluation Stats -->
+                <div class="glass-panel p-5 rounded-2xl border border-white/10 shadow-2xl flex flex-col justify-between">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-accent"></i> Evaluation Results</h3>
+                    
+                    <div class="flex flex-row items-center justify-between mb-4 px-2">
+                        <div class="text-center">
+                            <span class="block text-4xl font-extrabold text-emerald-400">{{ pass_rate }}%</span>
+                            <span class="text-xs text-gray-400 uppercase font-bold tracking-widest mt-1 block">Pass Rate</span>
+                        </div>
+                        <div class="h-16 w-px bg-white/10 mx-4"></div>
+                        <div class="text-center">
+                            <span class="block text-4xl font-extrabold text-blue-400">{{ avg_score }}</span>
+                            <span class="text-xs text-gray-400 uppercase font-bold tracking-widest mt-1 block">Avg Score</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 w-full h-3 rounded-full overflow-hidden bg-white/5">
+                        <div class="bg-emerald-500 h-full" style="width: {% if total_evaluated > 0 %}{{ passed|floatformat:0 }}{% else %}0{% endif %}%; width: calc({{ passed }} / {{ total_evaluated|default:1 }} * 100%);"></div>
+                        <div class="bg-red-500 h-full" style="width: {% if total_evaluated > 0 %}{{ failed|floatformat:0 }}{% else %}0{% endif %}%; width: calc({{ failed }} / {{ total_evaluated|default:1 }} * 100%);"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2">
+                        <span>{{ passed }} Passed</span>
+                        <span>{{ failed }} Failed</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="space-y-10 min-h-[60vh]">
                 <!-- PENDING Section -->
                 <div class="status-section">
@@ -160,6 +197,58 @@
                         // If no candidates, hide the whole section to keep it clean
                         if (count === 0) {
                             section.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
+            
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ctx = document.getElementById('pipelineChart').getContext('2d');
+                    
+                    // Use CSS variables or raw hex for colors
+                    Chart.defaults.color = '#9ca3af';
+                    Chart.defaults.font.family = "'Inter', sans-serif";
+                    
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Applied', 'Assigned', 'Interviewed', 'Hired', 'Rejected'],
+                            datasets: [{
+                                data: [
+                                    {{ pipeline_stats.PENDING }},
+                                    {{ pipeline_stats.ASSIGNED }},
+                                    {{ pipeline_stats.INTERVIEWED }},
+                                    {{ pipeline_stats.HIRED }},
+                                    {{ pipeline_stats.REJECTED }}
+                                ],
+                                backgroundColor: [
+                                    '#6b7280', // Gray
+                                    '#3b82f6', // Blue
+                                    '#8b5cf6', // Purple
+                                    '#10b981', // Green
+                                    '#ef4444'  // Red
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#050505',
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        padding: 15,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                }
+                            }
                         }
                     });
                 });

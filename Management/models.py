@@ -38,3 +38,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.name} ({self.get_role_display()})"
+
+class Question(models.Model):
+    designation = models.CharField(max_length=255, help_text="The role this question is for (e.g., Frontend Developer)")
+    text = models.TextField(help_text="The actual question to ask")
+    expected_answer = models.TextField(blank=True, null=True, help_text="Guidance for the interviewer on what a good answer looks like")
+    
+    def __str__(self):
+        return f"{self.designation}: {self.text[:50]}"

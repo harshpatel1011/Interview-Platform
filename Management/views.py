@@ -11,7 +11,36 @@ def dashboard(request):
         return redirect('home')
         
     candidates = CandidateProfile.objects.all().order_by('-applied_date')
-    return render(request, 'management/dashboard.html', {'candidates': candidates})
+    
+    # Advanced Analytics
+    total_candidates = candidates.count()
+    pipeline_stats = {
+        'PENDING': candidates.filter(status='PENDING').count(),
+        'ASSIGNED': candidates.filter(status='ASSIGNED').count(),
+        'INTERVIEWED': candidates.filter(status='INTERVIEWED').count(),
+        'HIRED': candidates.filter(status='HIRED').count(),
+        'REJECTED': candidates.filter(status='REJECTED').count(),
+    }
+    
+    evaluated_candidates = candidates.exclude(score=None)
+    total_evaluated = evaluated_candidates.count()
+    passed = evaluated_candidates.filter(score__gte=70).count()
+    failed = total_evaluated - passed
+    pass_rate = int((passed / total_evaluated) * 100) if total_evaluated > 0 else 0
+    
+    from django.db.models import Avg
+    avg_score = evaluated_candidates.aggregate(Avg('score'))['score__avg']
+    avg_score = round(avg_score, 1) if avg_score else 0
+
+    return render(request, 'management/dashboard.html', {
+        'candidates': candidates,
+        'pipeline_stats': pipeline_stats,
+        'pass_rate': pass_rate,
+        'passed': passed,
+        'failed': failed,
+        'total_evaluated': total_evaluated,
+        'avg_score': avg_score
+    })
 
 @login_required
 def assign_interviewer(request, candidate_id):
@@ -277,3 +306,35 @@ def interview_delete(request, id):
         interview.delete()
         messages.success(request, 'Interview deleted successfully. Cancellation emails sent.')
     return redirect('management_interview_list')
+
+# --- Question Bank Views ---
+from .models import Question
+from .forms import QuestionForm
+
+@login_required
+def question_list(request):
+    if request.user.role != 'MANAGEMENT': return redirect('home')
+    questions = Question.objects.all().order_by('designation')
+    return render(request, 'management/question_list.html', {'questions': questions})
+
+@login_required
+def question_create(request):
+    if request.user.role != 'MANAGEMENT': return redirect('home')
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Question added successfully.')
+            return redirect('management_question_list')
+    else:
+        form = QuestionForm()
+    return render(request, 'management/question_form.html', {'form': form, 'title': 'Add Question'})
+
+@login_required
+def question_delete(request, id):
+    if request.user.role != 'MANAGEMENT': return redirect('home')
+    if request.method == 'POST':
+        q = get_object_or_404(Question, id=id)
+        q.delete()
+        messages.success(request, 'Question deleted.')
+    return redirect('management_question_list')
