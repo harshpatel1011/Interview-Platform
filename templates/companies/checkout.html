@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-20 text-center animate-slide-up">
+    <div class="glass-panel p-10 rounded-2xl border border-white/10 shadow-2xl">
+        <div class="text-6xl text-emerald-400 mb-6">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </div>
+        <h2 class="text-2xl font-extrabold text-white tracking-tight mb-2">Connecting to Razorpay...</h2>
+        <p class="text-gray-400">Please complete the payment in the secure popup window.</p>
+        
+        <form action="{% url 'company_payment_callback' %}" method="POST" id="razorpay-form" class="mt-8">
+            {% csrf_token %}
+            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "TechPlus Marketplace",
+        "description": "Unlock Candidate #{{ candidate.id|stringformat:'04d' }}",
+        "order_id": "{{ order_id }}",
+        "handler": function (response){
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('razorpay-form').submit();
+        },
+        "prefill": {
+            "name": "{{ request.user.company_profile.company_name }}",
+            "email": "{{ request.user.email }}"
+        },
+        "theme": {
+            "color": "#10b981"
+        },
+        "modal": {
+            "ondismiss": function(){
+                window.location.href = "{% url 'company_marketplace' %}";
+            }
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    
+    // Auto open checkout on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        rzp1.open();
+    });
+</script>
+{% endblock %}

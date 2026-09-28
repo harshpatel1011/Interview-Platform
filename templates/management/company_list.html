@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Company Approvals</h2>
+            <p class="text-gray-400 mt-1 text-lg">Verify and manage company accounts.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Sidebar -->
+        {% include 'management/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-white/10 shadow-2xl">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-white/10">
+                            <th class="py-3 px-4">Company</th>
+                            <th class="py-3 px-4">Admin Name</th>
+                            <th class="py-3 px-4">Status</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        {% for company in companies %}
+                        <tr class="hover:bg-white/5 transition group">
+                            <td class="py-4 px-4 font-bold text-white"><a href="{% url 'management_company_detail' company.id %}" class="hover:text-blue-400 transition">{{ company.company_name }}</a></td>
+                            <td class="py-4 px-4 text-gray-400">{{ company.user.name }}<br><span class="text-xs">{{ company.user.email }}</span></td>
+                            <td class="py-4 px-4">
+                                {% if company.is_verified %}
+                                    <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs font-bold uppercase tracking-wider border border-emerald-500/20">Verified</span>
+                                {% else %}
+                                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-500 rounded text-xs font-bold uppercase tracking-wider border border-yellow-500/20">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 px-4 text-right">
+                                <form method="post" action="{% url 'management_company_verify' company.id %}" class="inline">
+                                    {% csrf_token %}
+                                    {% if company.is_verified %}
+                                        <input type="hidden" name="action" value="revoke">
+                                        <button type="submit" class="text-red-400 hover:text-red-300 font-bold text-xs uppercase tracking-wider">Revoke Access</button>
+                                    {% else %}
+                                        <input type="hidden" name="action" value="verify">
+                                        <button type="submit" class="btn-primary py-2 px-4 rounded text-xs font-bold text-black uppercase tracking-wider">Approve</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-gray-500 font-medium">No companies registered yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db import models
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, name, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, name=name, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, name, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'MANAGEMENT')
+        return self.create_user(email, name, password, **extra_fields)
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    ROLE_CHOICES = (
+        ('CANDIDATE', 'Candidate'),
+        ('INTERVIEWER', 'Interviewer'),
+        ('MANAGEMENT', 'Management'),
+        ('COMPANY', 'Company'),
+    )
+
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=255)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='CANDIDATE')
+    
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    
+    # Password Reset OTP fields
+    reset_otp = models.CharField(max_length=6, blank=True, null=True)
+    reset_otp_expires_at = models.DateTimeField(blank=True, null=True)
+    
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_role_display()})"
+
+class Question(models.Model):
+    designation = models.CharField(max_length=255, help_text="The role this question is for (e.g., Frontend Developer)")
+    text = models.TextField(help_text="The actual question to ask")
+    expected_answer = models.TextField(blank=True, null=True, help_text="Guidance for the interviewer on what a good answer looks like")
+    
+    def __str__(self):
+        return f"{self.designation}: {self.text[:50]}"

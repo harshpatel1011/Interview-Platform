@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Hire Candidate</h2>
+            <p class="text-gray-400 mt-1 text-lg">Officially mark {{ txn.candidate.user.name }} as hired.</p>
+        </div>
+        <a href="{% url 'company_dashboard' %}" class="bg-white/10 text-white px-4 py-2 rounded-lg text-sm hover:bg-white/20 transition">Back to Dashboard</a>
+    </div>
+
+    <div class="glass-panel p-8 rounded-2xl border border-emerald-500/30 shadow-2xl bg-emerald-500/5 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500 rounded-full blur-3xl opacity-10"></div>
+        
+        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                {{ txn.candidate.user.name|make_list|first|upper }}
+            </div>
+            <div>
+                <h4 class="text-2xl font-bold text-white">{{ txn.candidate.user.name }}</h4>
+                <p class="text-sm text-emerald-400">{{ txn.candidate.designations }} • Score: {{ txn.candidate.score }}/100</p>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Agreed Annual Salary (CTC in INR)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                    <input type="number" id="ctc_amount" name="ctc_amount" required step="10000" min="100000" placeholder="e.g. 300000" class="w-full bg-[#111] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white text-lg font-bold focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition" value="{% if txn.offer_amount %}{{ txn.offer_amount|floatformat:0 }}{% endif %}">
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Enter the final agreed upon annual CTC.</p>
+            </div>
+            
+            <div class="bg-black/50 border border-emerald-500/20 p-5 rounded-xl">
+                <div class="flex justify-between items-center text-sm mb-2">
+                    <span class="text-gray-400">Platform Hiring Fee</span>
+                    <span class="text-white">1 Month Salary</span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="text-emerald-400 font-bold">Total Fee</span>
+                    <span class="text-emerald-400 font-black" id="calculated_fee">₹0</span>
+                </div>
+            </div>
+            
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-500/25 transition transform hover:-translate-y-0.5">
+                    Confirm Hire & Generate Invoice <i class="fa-solid fa-file-invoice-dollar ml-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctcInput = document.getElementById('ctc_amount');
+        const feeDisplay = document.getElementById('calculated_fee');
+        
+        function updateFee() {
+            const ctc = parseFloat(ctcInput.value);
+            if (!isNaN(ctc) && ctc > 0) {
+                const fee = ctc / 12;
+                feeDisplay.textContent = '₹' + fee.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+            } else {
+                feeDisplay.textContent = '₹0';
+            }
+        }
+        
+        ctcInput.addEventListener('input', updateFee);
+        updateFee(); // Run once on load
+    });
+</script>
+{% endblock %}

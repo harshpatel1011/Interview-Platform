@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-8 flex flex-col justify-between gap-4 animate-slide-up">
+    <div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">Interview History</h2>
+        <p class="text-gray-400 mt-1 text-lg">A log of all your completed and cancelled interviews.</p>
+    </div>
+</div>
+
+<div class="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl animate-slide-up" style="animation-delay: 0.1s;">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface/50 text-gray-400 uppercase text-xs tracking-wider font-semibold border-b border-white/10">
+                    <th class="py-4 px-6 text-left">Candidate Name</th>
+                    <th class="py-4 px-6 text-left">Role / Designation</th>
+                    <th class="py-4 px-6 text-left">Date & Time</th>
+                    <th class="py-4 px-6 text-center">Score</th>
+                    <th class="py-4 px-6 text-center">Status</th>
+                    <th class="py-4 px-6 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 bg-[#050505]">
+                {% for interview in interviews %}
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="py-4 px-6 font-medium text-white">{{ interview.candidate.user.name }}</td>
+                    <td class="py-4 px-6 text-gray-300">{{ interview.designation }}</td>
+                    <td class="py-4 px-6 text-gray-300">{{ interview.scheduled_time|date:"M d, Y, h:i A" }}</td>
+                    <td class="py-4 px-6 text-center">
+                        {% if interview.score %}
+                            <span class="font-extrabold text-blue-400">{{ interview.score }} / 100</span>
+                        {% else %}
+                            <span class="text-gray-600">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        {% if interview.status == 'COMPLETED' %}
+                            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Completed</span>
+                        {% elif interview.status == 'CANCELLED' %}
+                            <span class="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <a href="{% url 'interview_detail' interview.id %}" class="text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors">View <i class="fa-solid fa-arrow-right"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-12 text-center text-gray-500">
+                        <i class="fa-solid fa-clock-rotate-left text-3xl mb-3 block"></i>
+                        No history found. You haven't completed any interviews yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

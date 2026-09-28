@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Candidate Marketplace</h2>
+            <p class="text-gray-400 mt-1 text-lg">Browse pre-vetted, interviewed candidates and unlock their full profiles.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {% include 'companies/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            <!-- Search / Filter -->
+            <form method="get" class="glass-panel p-4 rounded-xl border border-white/10 flex gap-4 items-end bg-[#111]">
+                <div class="flex-1">
+                    <label class="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Role / Skills</label>
+                    <input type="text" name="designation" value="{{ request.GET.designation }}" placeholder="e.g. React, Python" class="w-full bg-black border border-white/10 rounded-lg p-2.5 text-white text-sm focus:border-primary outline-none">
+                </div>
+                <div class="w-32">
+                    <label class="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Min Score</label>
+                    <input type="number" name="min_score" value="{{ request.GET.min_score }}" placeholder="0-100" class="w-full bg-black border border-white/10 rounded-lg p-2.5 text-white text-sm focus:border-primary outline-none">
+                </div>
+                <button type="submit" class="bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-6 rounded-lg transition border border-white/5">
+                    <i class="fa-solid fa-filter"></i> Filter
+                </button>
+            </form>
+
+            <div class="grid grid-cols-1 gap-4">
+                {% for cand in candidates %}
+                    <div class="glass-panel p-5 rounded-xl border border-white/10 shadow-2xl flex flex-col sm:flex-row gap-6 items-center hover:border-white/20 transition">
+                        
+                        <!-- Masked Identity -->
+                        <div class="w-20 h-20 rounded-full bg-gray-800 border-2 border-white/10 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                            <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-10 text-xl"><i class="fa-solid fa-user-lock text-gray-400"></i></div>
+                        </div>
+                        
+                        <div class="flex-grow text-center sm:text-left space-y-2">
+                            <div class="flex items-center gap-3 justify-center sm:justify-start">
+                                <a href="{% url 'company_candidate_detail' cand.id %}">
+                                    <h4 class="text-xl font-bold text-white tracking-tight hover:text-emerald-400 transition">Candidate #{{ cand.id|stringformat:"04d" }}</h4>
+                                </a>
+                                <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest">Interviewed</span>
+                            </div>
+                            <p class="text-sm text-gray-300 font-medium">{{ cand.designations }}</p>
+                            
+                            <div class="flex flex-wrap items-center gap-4 text-xs font-medium text-gray-400 mt-3 justify-center sm:justify-start">
+                                <span class="bg-white/5 px-3 py-1 rounded-full border border-white/5 flex items-center gap-2"><i class="fa-solid fa-graduation-cap"></i> {{ cand.experience }} Yrs Exp</span>
+                                <span class="bg-white/5 px-3 py-1 rounded-full border border-white/5 flex items-center gap-2"><i class="fa-solid fa-briefcase"></i> {{ cand.current_ctc }} LPA</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col items-center sm:items-end gap-3 flex-shrink-0 min-w-[120px]">
+                            <div class="text-center bg-black/50 px-4 py-2 rounded-xl border border-white/5">
+                                <span class="block text-2xl font-black text-yellow-500">{{ cand.score }}</span>
+                                <span class="block text-[9px] uppercase tracking-widest text-gray-500 font-bold">TechPlus Score</span>
+                            </div>
+                            
+                            <a href="{% url 'company_unlock' cand.id %}" class="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white text-center font-bold py-2 px-4 rounded-lg transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                                <i class="fa-solid fa-unlock-keyhole"></i> Unlock
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-16 glass-panel rounded-2xl border border-white/10">
+                        <div class="text-5xl text-gray-600 mb-4"><i class="fa-solid fa-users-slash"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">No Candidates Found</h3>
+                        <p class="text-gray-400">Try adjusting your filters.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

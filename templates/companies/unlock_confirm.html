@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-20">
+    <div class="glass-panel p-8 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
+        
+        <div class="relative z-10 text-center">
+            <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-6 text-2xl border border-emerald-500/30">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-white tracking-tight mb-2">Unlock Candidate Profile</h2>
+            <p class="text-sm text-gray-400 mb-8">You are about to unlock the contact details and resume for <strong>Candidate #{{ candidate.id|stringformat:"04d" }}</strong>. Unlocking is completely free.</p>
+            
+            <div class="bg-black/50 border border-white/5 rounded-xl p-5 mb-8">
+                <div class="flex justify-between items-center mb-3 text-sm">
+                    <span class="text-gray-400 font-medium">Candidate Role</span>
+                    <span class="text-white font-bold">{{ candidate.designations|truncatechars:25 }}</span>
+                </div>
+                <div class="flex justify-between items-center mb-3 text-sm">
+                    <span class="text-gray-400 font-medium">TechPlus Score</span>
+                    <span class="text-yellow-500 font-black">{{ candidate.score }} / 100</span>
+                </div>
+                <div class="w-full h-px bg-white/10 my-4"></div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="text-white font-bold">Platform Fee (on hire)</span>
+                    <span class="text-emerald-400 font-black">1 Month Salary</span>
+                </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold py-3.5 px-4 rounded-xl transition shadow-lg flex justify-center items-center gap-2 group">
+                    <i class="fa-solid fa-lock-open group-hover:scale-110 transition-transform"></i> Unlock for Free
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <a href="{% url 'company_marketplace' %}" class="text-xs font-bold text-gray-500 hover:text-white uppercase tracking-widest transition">Cancel</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-6 flex items-center justify-center gap-2 text-xs text-gray-500 font-bold">
+        <i class="fa-solid fa-info-circle text-emerald-400"></i> You only pay if you successfully hire the candidate.
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto animate-slide-up mt-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Profile Settings</h2>
+            <p class="text-gray-400 mt-1">Update your professional details.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'interviewer_profile' %}" class="btn-secondary py-2 px-5 rounded-lg font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="premium-card p-8 border border-white/5 bg-[#050505]">
+        <div class="flex items-center gap-6 mb-8 pb-8 border-b border-white/5">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+                {{ user.name.0|upper }}
+            </div>
+            <div>
+                <h3 class="text-white font-bold text-xl">{{ user.name }}</h3>
+                <p class="text-sm text-gray-500">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-white mb-6">Update Settings</h3>
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Full Name</label>
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+            
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Department</label>
+                {{ form.department }}
+                {{ form.department.errors }}
+                <p class="text-[10px] text-gray-500 mt-1">e.g. Engineering, Design, Product</p>
+            </div>
+            
+            <div class="pt-6 border-t border-white/5 flex justify-end">
+                <button type="submit" class="btn-primary text-black font-bold py-3 px-8 rounded-lg flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

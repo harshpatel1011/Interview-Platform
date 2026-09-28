@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mt-10 animate-slide-up">
+    <!-- Header -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Request Live Interview</h1>
+            <p class="text-gray-400 mt-1 text-sm">Schedule a live one-on-one session with our expert interviewers.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Sidebar -->
+        {% include 'candidates/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            <div class="premium-card rounded-2xl border border-white/5 bg-[#050505] p-8 text-center">
+                
+                <div class="w-20 h-20 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-4xl mx-auto mb-6 shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                
+                {% if profile.status == 'PENDING' %}
+                    <h3 class="text-2xl font-bold text-white mb-3">You're Already in the Queue</h3>
+                    <p class="text-gray-400 max-w-lg mx-auto mb-8">Your profile is currently waiting to be assigned to an interviewer. You don't need to request another interview at this time. We will notify you once you are scheduled.</p>
+                    
+                    <div class="flex justify-center gap-4">
+                        <a href="{% url 'candidate_dashboard' %}" class="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-lg transition-colors inline-block">Return to Dashboard</a>
+                        
+                        <form method="post" action="{% url 'candidate_cancel_request' %}" onsubmit="return confirm('Are you sure you want to withdraw your interview request?');">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold py-3 px-8 rounded-lg transition-colors inline-block">
+                                Cancel Request
+                            </button>
+                        </form>
+                    </div>
+                    
+                {% elif profile.status == 'ASSIGNED' %}
+                    <h3 class="text-2xl font-bold text-white mb-3">Interview Already Scheduled</h3>
+                    <p class="text-gray-400 max-w-lg mx-auto mb-8">You already have an upcoming interview scheduled. Please complete your current interview before requesting a new one.</p>
+                    
+                    <div class="flex justify-center gap-4">
+                        <a href="{% url 'candidate_dashboard' %}" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition-colors inline-block shadow-lg">View Schedule</a>
+                        
+                        {% if scheduled_interview %}
+                        <form method="post" action="{% url 'candidate_cancel_interview' scheduled_interview.id %}" onsubmit="return confirm('Are you sure you want to cancel this scheduled interview?');">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold py-3 px-8 rounded-lg transition-colors inline-block">
+                                Cancel Interview
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    
+                {% else %}
+                    <!-- Status is INTERVIEWED, OFFERED, HIRED, REJECTED -->
+                    <h3 class="text-2xl font-bold text-white mb-3">Request a Re-evaluation</h3>
+                    <p class="text-gray-400 max-w-lg mx-auto mb-6">Want to improve your score? You can request a fresh evaluation with one of our expert interviewers.</p>
+                    
+                    {% if profile.interviews.count > 0 %}
+                    <div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 max-w-md mx-auto mb-8 text-left">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-info text-purple-400 mt-0.5"></i>
+                            <div>
+                                <h4 class="text-purple-400 font-bold text-sm">Pricing Info</h4>
+                                <p class="text-gray-300 text-xs mt-1">You have already used your first free interview. Additional re-evaluations cost ₹150 per session.</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'candidate_request_interview' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition-colors inline-flex items-center gap-2 shadow-[0_0_20px_rgba(37,99,235,0.3)]">
+                            <i class="fa-solid fa-paper-plane"></i> Submit Request
+                        </button>
+                    </form>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block footer %}{% endblock %}
+{% block header_nav %}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto animate-slide-up mt-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Profile Settings</h2>
+            <p class="text-gray-400 mt-1">Update your personal information and resume.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'candidate_profile' %}" class="btn-secondary py-2 px-5 rounded-lg font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Main Content -->
+        <div class="md:col-span-2 space-y-6">
+            <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+                <div class="flex items-center gap-4 mb-8 pb-8 border-b border-white/5">
+                    <div class="w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl font-bold border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+                        {{ user.name.0|upper }}
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-xl">{{ user.name }}</h3>
+                        <p class="text-sm text-gray-500">{{ user.email }}</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-white mb-6">Update Settings</h3>
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Full Name</label>
+                        {{ form.name }}
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Applied Roles / Designations</label>
+                        {{ form.designations }}
+                        <p class="text-[10px] text-gray-500 mt-1">Separate multiple roles with commas (e.g. Frontend Developer, Designer)</p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Update Resume</label>
+                        <div class="p-8 border border-dashed border-white/20 rounded-xl bg-black/50 text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition cursor-pointer relative overflow-hidden group flex flex-col items-center justify-center">
+                            {{ form.resume }}
+                            <!-- We use javascript to update the text when a file is chosen, but for now we'll just style the container -->
+                            <style>
+                                input[type="file"] {
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    opacity: 0;
+                                    cursor: pointer;
+                                    z-index: 10;
+                                }
+                            </style>
+                            <div class="text-gray-500 group-hover:text-blue-400 transition flex flex-col items-center gap-3 relative z-0">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                                <span class="text-sm font-medium">Click or drag new PDF to update</span>
+                                <span class="text-xs text-gray-600 mt-1" id="file-name-display">No file currently selected</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        // Simple script to update the displayed file name when a file is selected
+                        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+                            var fileName = e.target.files[0] ? e.target.files[0].name : 'No file currently selected';
+                            document.getElementById('file-name-display').textContent = 'Selected: ' + fileName;
+                            document.getElementById('file-name-display').classList.replace('text-gray-600', 'text-blue-400');
+                        });
+                    </script>
+                    
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" class="btn-primary text-black font-bold py-3 px-6 rounded-lg flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+                <h3 class="text-xl font-bold text-white mb-6">Change Password</h3>
+                <form method="post" action="{% url 'candidate_change_password' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Old Password</label>
+                        <input type="password" name="old_password" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">New Password</label>
+                        <input type="password" name="new_password1" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Confirm New Password</label>
+                        <input type="password" name="new_password2" class="w-full p-3.5 premium-input rounded-xl text-white placeholder-gray-500" required>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" class="btn-secondary w-full sm:w-auto text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-key"></i> Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="premium-card p-6 border border-red-500/20 bg-red-500/5">
+                <h3 class="text-xl font-bold text-red-500 mb-2">Danger Zone</h3>
+                <p class="text-gray-400 text-sm mb-6">Once you delete your account, there is no going back. Please be certain.</p>
+                <form method="post" action="{% url 'candidate_delete_account' %}" onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.');">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/50 hover:border-red-500 font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-trash"></i> Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        {% include 'candidates/sidebar.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto animate-slide-up mt-8">
+    <!-- Header -->
+    <div class="mb-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div>
+                {% if is_unlocked %}
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">{{ candidate.user.name }}'s Profile</h1>
+                {% else %}
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">Candidate #{{ candidate.id|stringformat:"04d" }}</h1>
+                {% endif %}
+                
+                {% if is_unlocked %}
+                <div class="text-gray-400 text-sm mt-1 flex items-center gap-3">
+                    <span><i class="fa-solid fa-envelope mr-1.5"></i>{{ candidate.user.email }}</span>
+                    {% if candidate.phone %}
+                    <span>•</span>
+                    <span><i class="fa-solid fa-phone mr-1.5"></i>{{ candidate.phone }}</span>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-gray-400 text-sm mt-1 flex items-center gap-3">
+                    <span><i class="fa-solid fa-envelope mr-1.5"></i>[Hidden]</span>
+                    <span>•</span>
+                    <span><i class="fa-solid fa-phone mr-1.5"></i>[Hidden]</span>
+                </div>
+                {% endif %}
+                
+                {% if candidate.designations %}
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Roles:</span>
+                    <span class="text-sm font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">{{ candidate.designations }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            {% if not is_unlocked %}
+            <a href="{% url 'company_unlock' candidate.id %}" class="bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold py-2 px-5 rounded-lg text-sm transition shadow-lg flex justify-center items-center gap-2">
+                <i class="fa-solid fa-lock-open"></i> Unlock for Free
+            </a>
+            {% else %}
+            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border border-emerald-500/30 flex items-center gap-2">
+                <i class="fa-solid fa-check-circle"></i> Unlocked
+            </span>
+            {% endif %}
+            <a href="{% url 'company_marketplace' %}" class="bg-white/10 text-white font-bold py-2 px-5 rounded-lg text-sm hover:bg-white/20 transition">Back</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="space-y-6">
+        
+        <!-- Quick Stats Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Score -->
+            <div class="premium-card p-6 border border-white/5 bg-[#050505] flex flex-col items-center justify-center text-center">
+                <span class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-3">Overall Score</span>
+                {% if candidate.score %}
+                    <div class="text-4xl font-extrabold text-white">{{ candidate.score }}<span class="text-xl text-gray-600 font-medium">/100</span></div>
+                {% else %}
+                    <div class="text-3xl font-extrabold text-gray-600">-</div>
+                {% endif %}
+            </div>
+
+            <!-- Resume -->
+            <div class="premium-card p-6 border border-white/5 bg-[#050505] flex flex-col items-center justify-center text-center">
+                <span class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-3">Documents</span>
+                {% if is_unlocked and candidate.resume %}
+                    <a href="{{ candidate.resume.url }}" target="_blank" class="w-full max-w-[200px] py-2.5 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white font-bold transition flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-file-pdf text-red-400"></i> View Resume
+                    </a>
+                {% elif candidate.resume %}
+                    <div class="text-gray-500 text-sm italic border border-dashed border-gray-600/50 rounded-lg px-4 py-2 flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-gray-400"></i> Resume Locked
+                    </div>
+                {% else %}
+                    <div class="text-gray-500 text-sm">No resume uploaded</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Profile Feedback -->
+        {% if is_unlocked and candidate.feedback %}
+        <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Overall Feedback / Notes</h3>
+            <div class="p-4 bg-white/5 rounded-xl border border-white/5 text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                {{ candidate.feedback }}
+            </div>
+        </div>
+        {% elif candidate.feedback %}
+        <div class="premium-card p-6 border border-white/5 bg-[#050505] opacity-50 relative overflow-hidden">
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Overall Feedback / Notes</h3>
+            <div class="p-4 bg-white/5 rounded-xl border border-white/5 text-transparent text-sm leading-relaxed" style="text-shadow: 0 0 10px rgba(255,255,255,0.2);">
+                This is a hidden feedback text. You must unlock the profile to read the detailed interview feedback provided by our team.
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center backdrop-blur-[2px]">
+                <div class="bg-black/80 px-4 py-2 rounded-lg border border-white/10 text-gray-300 font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-emerald-400"></i> Unlock to view feedback
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Interview History -->
+        <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Interview History</h3>
+                <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold">{{ candidate.interviews.count }} Sessions</span>
+            </div>
+            
+            <div class="space-y-4">
+                {% for interview in candidate.interviews.all|dictsortreversed:"scheduled_time" %}
+                {% if interview.status == 'COMPLETED' %}
+                <div class="p-5 bg-[#111] border border-white/10 rounded-xl relative overflow-hidden group">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></div>
+
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 pl-3">
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="text-white font-bold">Interview Session</div>
+                                <span class="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-green-500/20">Completed</span>
+                            </div>
+                            <div class="text-sm text-gray-400">
+                                <span class="font-bold text-gray-300">Date:</span> {{ interview.scheduled_time|date:"M d, Y" }}
+                            </div>
+                            
+                            {% if is_unlocked and interview.feedback %}
+                            <div class="mt-4 p-3 bg-white/5 rounded-lg border border-white/5 text-gray-300 text-sm italic">
+                                "{{ interview.feedback }}"
+                            </div>
+                            {% elif interview.feedback %}
+                            <div class="mt-4 p-3 bg-white/5 rounded-lg border border-white/5 text-transparent text-sm italic select-none relative" style="text-shadow: 0 0 8px rgba(255,255,255,0.3);">
+                                "This is a hidden feedback comment."
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex flex-col items-end gap-3 min-w-[120px]">
+                            {% if interview.score %}
+                            <div class="text-right">
+                                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Score</div>
+                                <div class="text-2xl font-extrabold text-green-400">{{ interview.score }}<span class="text-sm text-gray-600 font-medium">/100</span></div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if is_unlocked %}
+                            <div class="flex gap-2">
+                                <a href="{% url 'interview_detail' interview.id %}" class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 transition bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-md border border-emerald-500/30">
+                                    View Full Transcript & Results
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="p-8 text-center text-gray-500 bg-[#111] border border-white/5 rounded-xl border-dashed">
+                    <p>No completed interviews yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

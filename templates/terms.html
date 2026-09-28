@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-12 mb-24 animate-slide-up">
+    <div class="mb-10 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">Terms of Service</h1>
+        <p class="text-gray-400">Last updated: {{ now|date:"F j, Y"|default:"September 22, 2026" }}</p>
+    </div>
+    
+    <div class="premium-card p-10 border border-white/5 bg-[#050505] text-gray-300 space-y-8 leading-relaxed">
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">1. Acceptance of Terms</h2>
+            <p>By registering for, accessing, or using the TechPlus platform ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of the terms, you may not access the Service. We reserve the right to update or modify these Terms at any time without prior notice. Your continued use of the Service following any changes indicates your acceptance of the new Terms.</p>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">2. Description of Service</h2>
+            <p>TechPlus provides an enterprise-grade platform for technical recruitment. The Service includes:</p>
+            <ul class="list-disc pl-6 mt-4 space-y-2 text-gray-400">
+                <li>Candidate portfolio and resume management.</li>
+                <li>Video conferencing environments powered by Jitsi for live technical interviews.</li>
+                <li>Management dashboards for pipeline tracking and interviewer assignment.</li>
+                <li>Post-interview scoring and evaluation systems.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">3. Account Registration & Security</h2>
+            <p>You must provide accurate and complete information when creating an account. You are solely responsible for safeguarding your password and for any activities or actions under your account. You agree to notify us immediately of any unauthorized use of your account. TechPlus will not be liable for any loss or damage arising from your failure to comply with this security obligation.</p>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">4. User Conduct</h2>
+            <p>The Service must be used strictly for its intended purpose of technical interviewing and hiring. You agree <strong>not</strong> to engage in any of the following prohibited activities:</p>
+            <ul class="list-disc pl-6 mt-4 space-y-2 text-gray-400">
+                <li>Using the Service for any unlawful purpose or to solicit others to perform unlawful acts.</li>
+                <li>Harassing, abusing, insulting, harming, or discriminating against other users.</li>
+                <li>Cheating, plagiarizing, or using unauthorized third-party assistance during technical evaluations.</li>
+                <li>Attempting to interfere with, compromise the system integrity or security, or decipher any transmissions to or from our servers.</li>
+                <li>Uploading viruses, malware, or any other type of malicious code.</li>
+            </ul>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">5. Intellectual Property</h2>
+            <p>All platform infrastructure, design, branding, and proprietary codebase belonging to TechPlus is the intellectual property of TechPlus Inc. However, candidates retain the intellectual property rights to the specific code they write and submit during technical evaluations, subject to the review and internal hiring policies of the evaluating company.</p>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">6. Termination</h2>
+            <p>We may terminate or suspend your account and bar access to the Service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms. Upon termination, your right to use the Service will immediately cease.</p>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">7. Limitation of Liability</h2>
+            <p>In no event shall TechPlus, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the Service; (ii) any conduct or content of any third party on the Service.</p>
+        </section>
+    </div>
+</div>
+{% endblock %}

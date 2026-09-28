@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8">
+        <a href="#" onclick="history.back(); return false;" class="text-sm font-medium text-gray-400 hover:text-white transition inline-flex items-center gap-2 mb-6">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-extrabold text-white tracking-tight">Interview Evaluation</h2>
+                <div class="flex items-center gap-3 mt-2 text-sm text-gray-400">
+                    <span><i class="fa-regular fa-calendar text-blue-500"></i> {{ interview.scheduled_time|date:"F j, Y, g:i A" }}</span>
+                    <span>&bull;</span>
+                    <span><i class="fa-solid fa-briefcase text-purple-500"></i> {{ interview.designation }}</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                {% if interview.status == 'COMPLETED' %}
+                    <span class="px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Completed
+                    </span>
+                {% elif interview.status == 'CANCELLED' %}
+                    <span class="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-xmark"></i> Cancelled
+                    </span>
+                {% else %}
+                    <span class="px-4 py-2 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-clock"></i> Scheduled
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Participant Info -->
+        <div class="space-y-6">
+            <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Participants</h3>
+                
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xl">
+                        {{ interview.candidate.user.name.0|upper }}
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Candidate</div>
+                        <div class="font-bold text-white">{{ interview.candidate.user.name }}</div>
+                        {% if user.role == 'MANAGEMENT' or user.role == 'INTERVIEWER' %}
+                            <a href="mailto:{{ interview.candidate.user.email }}" class="text-xs text-blue-400 hover:underline">{{ interview.candidate.user.email }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 pt-6 border-t border-white/5">
+                    <div class="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xl">
+                        {{ interview.interviewer.user.name.0|upper }}
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Interviewer</div>
+                        <div class="font-bold text-white">{{ interview.interviewer.user.name }}</div>
+                        {% if user.role == 'MANAGEMENT' %}
+                            <a href="mailto:{{ interview.interviewer.user.email }}" class="text-xs text-purple-400 hover:underline">{{ interview.interviewer.user.email }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if interview.status == 'SCHEDULED' %}
+            <div class="premium-card p-6 border border-blue-500/20 bg-blue-500/5 text-center">
+                <i class="fa-solid fa-video text-3xl text-blue-400 mb-3 block"></i>
+                <h3 class="text-lg font-bold text-white mb-2">Join Meeting</h3>
+                <p class="text-sm text-gray-400 mb-4">The secure video room is ready for your scheduled time.</p>
+                <a href="{{ interview.meeting_link }}" class="w-full inline-block px-4 py-2 bg-blue-500 hover:bg-blue-400 text-black font-bold rounded-lg transition-colors">
+                    Enter Room <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Scores & Feedback -->
+        <div class="md:col-span-2 space-y-6">
+            {% if interview.status == 'COMPLETED' %}
+                <!-- Final Score Card -->
+                <div class="premium-card p-6 border border-white/5 bg-gradient-to-br from-[#050505] to-[#111827] relative overflow-hidden group">
+                    <div class="absolute -right-8 -top-8 text-white/5 text-9xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-award"></i></div>
+                    
+                    <div class="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-6">
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Overall Assessment</h4>
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <span class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">{{ interview.score }}</span>
+                                <span class="text-2xl text-gray-600 font-medium">/ 100</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-left md:text-right">
+                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Final Grade</div>
+                            <div class="inline-block px-4 py-2 rounded-lg border font-bold text-lg
+                                {% if interview.grade == 'Excellent' %}bg-emerald-500/10 border-emerald-500/30 text-emerald-400
+                                {% elif interview.grade == 'Good' %}bg-blue-500/10 border-blue-500/30 text-blue-400
+                                {% elif interview.grade == 'Average' %}bg-yellow-500/10 border-yellow-500/30 text-yellow-400
+                                {% else %}bg-red-500/10 border-red-500/30 text-red-400{% endif %}">
+                                {{ interview.grade }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Breakdown -->
+                <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+                    <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-gray-500"></i> Score Breakdown</h3>
+                    
+                    <div class="space-y-5">
+                        <!-- Technical -->
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <div>
+                                    <span class="font-bold text-white block">Technical Skills</span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest">Core competency</span>
+                                </div>
+                                <span class="font-mono text-sm font-bold text-gray-300">{{ interview.technical_score }} <span class="text-gray-600">/ 40</span></span>
+                            </div>
+                            <div class="h-2 w-full bg-[#111] rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: {% widthratio interview.technical_score 40 100 %}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Problem Solving -->
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <div>
+                                    <span class="font-bold text-white block">Problem Solving</span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest">Logic & approach</span>
+                                </div>
+                                <span class="font-mono text-sm font-bold text-gray-300">{{ interview.problem_solving_score }} <span class="text-gray-600">/ 25</span></span>
+                            </div>
+                            <div class="h-2 w-full bg-[#111] rounded-full overflow-hidden">
+                                <div class="h-full bg-purple-500 rounded-full" style="width: {% widthratio interview.problem_solving_score 25 100 %}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Communication -->
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <div>
+                                    <span class="font-bold text-white block">Communication</span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest">Clarity & articulation</span>
+                                </div>
+                                <span class="font-mono text-sm font-bold text-gray-300">{{ interview.communication_score }} <span class="text-gray-600">/ 15</span></span>
+                            </div>
+                            <div class="h-2 w-full bg-[#111] rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-500 rounded-full" style="width: {% widthratio interview.communication_score 15 100 %}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Culture Fit -->
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <div>
+                                    <span class="font-bold text-white block">Culture Fit</span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest">Team dynamics</span>
+                                </div>
+                                <span class="font-mono text-sm font-bold text-gray-300">{{ interview.culture_fit_score }} <span class="text-gray-600">/ 10</span></span>
+                            </div>
+                            <div class="h-2 w-full bg-[#111] rounded-full overflow-hidden">
+                                <div class="h-full bg-yellow-500 rounded-full" style="width: {% widthratio interview.culture_fit_score 10 100 %}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Confidence -->
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <div>
+                                    <span class="font-bold text-white block">Confidence</span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest">Professional presence</span>
+                                </div>
+                                <span class="font-mono text-sm font-bold text-gray-300">{{ interview.confidence_score }} <span class="text-gray-600">/ 10</span></span>
+                            </div>
+                            <div class="h-2 w-full bg-[#111] rounded-full overflow-hidden">
+                                <div class="h-full bg-red-500 rounded-full" style="width: {% widthratio interview.confidence_score 10 100 %}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Written Feedback -->
+                <div class="premium-card p-6 border border-white/5 bg-[#050505]">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-comment-dots text-gray-500"></i> Interviewer Notes</h3>
+                    <div class="p-4 bg-[#111] border border-white/5 rounded-lg">
+                        {% if interview.feedback %}
+                            <p class="text-sm text-gray-300 whitespace-pre-line leading-relaxed">{{ interview.feedback }}</p>
+                        {% else %}
+                            <p class="text-sm text-gray-500 italic">No detailed feedback provided.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% elif interview.status == 'SCHEDULED' %}
+                <div class="premium-card p-12 border border-white/5 bg-[#050505] flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 rounded-full bg-gray-800/50 flex items-center justify-center mb-4 border border-gray-700">
+                        <i class="fa-solid fa-hourglass-half text-3xl text-gray-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Evaluation Pending</h3>
+                    <p class="text-gray-400 max-w-sm">The detailed scorecard will be available here automatically once the interview is completed.</p>
+                </div>
+            {% else %}
+                <div class="premium-card p-12 border border-white/5 bg-[#050505] flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20">
+                        <i class="fa-solid fa-ban text-3xl text-red-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Interview Cancelled</h3>
+                    <p class="text-gray-400 max-w-sm">This interview was cancelled and no scores were recorded.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

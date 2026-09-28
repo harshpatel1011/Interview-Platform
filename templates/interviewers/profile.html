@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto animate-slide-up mt-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Interviewer Profile</h2>
+            <p class="text-gray-400 mt-1">Your professional details and department.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'interviewer_settings' %}" class="btn-primary py-2 px-5 rounded-lg font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="premium-card p-8 border border-white/5 bg-[#050505]">
+        <div class="flex items-center gap-6 mb-8 pb-8 border-b border-white/5">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-accent to-purple-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                {{ profile.user.name.0|upper }}
+            </div>
+            <div>
+                <h3 class="text-white font-bold text-2xl">{{ profile.user.name }}</h3>
+                <p class="text-gray-400 text-base mt-1">{{ profile.user.email }}</p>
+                <div class="mt-3 flex items-center gap-2">
+                    <span class="px-3 py-1 bg-white/10 text-gray-300 rounded text-xs font-bold uppercase tracking-wider border border-white/10">Interviewer</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="p-5 bg-white/5 border border-white/5 rounded-xl">
+                <span class="text-xs text-gray-500 font-bold uppercase tracking-widest block mb-2">Department</span>
+                <div class="text-white font-medium text-lg">
+                    {% if profile.department %}
+                        {{ profile.department }}
+                    {% else %}
+                        <span class="text-gray-500 italic">Not specified</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="p-5 bg-white/5 border border-white/5 rounded-xl">
+                <span class="text-xs text-gray-500 font-bold uppercase tracking-widest block mb-2">Account Created</span>
+                <div class="text-white font-medium text-lg">{{ profile.user.date_joined|date:"F d, Y"|default:"Recently" }}</div>
+            </div>
+        </div>
+        
+        <div class="mt-8 pt-6 border-t border-white/5">
+            <a href="{% url 'interviewer_dashboard' %}" class="inline-flex items-center gap-2 text-primary hover:text-primaryHover transition font-bold text-sm">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

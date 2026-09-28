@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block footer %}{% endblock %}
+{% block header_nav %}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto animate-slide-up mt-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Candidate Dashboard</h2>
+            {% if profile.designations %}
+            <div class="mt-2 text-sm font-bold text-blue-400 uppercase tracking-wider">Applied for: {{ profile.designations }}</div>
+            {% else %}
+            <p class="text-gray-400 mt-1">Track your interview status and join scheduled meetings.</p>
+            {% endif %}
+        </div>
+        <div class="flex items-center gap-3">
+            {% if profile.status == 'INTERVIEWED' or profile.status == 'REJECTED' %}
+            <a href="{% url 'candidate_request_interview' %}" class="px-4 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors">
+                <i class="fa-solid fa-arrows-rotate"></i> Request New Evaluation
+            </a>
+            {% endif %}
+            <span class="px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-bold flex items-center gap-2">
+                <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> {{ profile.get_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Main Content (Interviews) -->
+        <div class="md:col-span-2 space-y-6">
+            <div class="premium-card p-0 border border-white/5 bg-[#050505] overflow-hidden">
+                <div class="p-6 border-b border-white/5 bg-black/40 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-video text-gray-500"></i> Interviews
+                    </h3>
+                </div>
+                
+                {% if interviews %}
+                    <div class="divide-y divide-white/5">
+                        {% for interview in interviews %}
+                            <div class="p-6 bg-transparent hover:bg-white/5 transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-6 group">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex flex-shrink-0 items-center justify-center text-blue-400 font-bold text-lg mt-1">
+                                        {{ interview.interviewer.user.name.0|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-3">
+                                            <h4 class="text-white font-bold text-lg">Interview with {{ interview.interviewer.user.name }}</h4>
+                                            {% if interview.status == 'SCHEDULED' %}
+                                                <span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">Scheduled</span>
+                                            {% elif interview.status == 'COMPLETED' %}
+                                                <span class="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-green-500/20">Completed</span>
+                                            {% else %}
+                                                <span class="bg-red-500/10 text-red-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-red-500/20">Cancelled</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-blue-400 text-xs font-bold uppercase tracking-wider mt-1 mb-1">{{ interview.designation }}</div>
+                                        <p class="text-gray-500 text-sm mt-1 flex items-center gap-2">
+                                            <i class="fa-regular fa-clock"></i> {{ interview.scheduled_time|date:"F j, Y - g:i A" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-shrink-0 flex items-center gap-3">
+                                    {% if interview.status == 'SCHEDULED' and interview.meeting_link %}
+                                        <form method="post" action="{% url 'candidate_cancel_interview' interview.id %}" onsubmit="return confirm('Are you sure you want to cancel this interview?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="inline-flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold px-4 py-2.5 rounded transition-all text-sm" title="Cancel Interview">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </form>
+                                        <a href="{{ interview.meeting_link }}" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all">
+                                            <i class="fa-solid fa-phone"></i> Join Room
+                                        </a>
+                                    {% elif interview.status == 'COMPLETED' %}
+                                        <a href="{% url 'interview_detail' interview.id %}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-bold bg-white/5 hover:bg-white/10 text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 transition-colors"><i class="fa-solid fa-chart-bar"></i> View Results</a>
+                                    {% elif interview.status == 'CANCELLED' %}
+                                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-bold bg-white/5 text-red-400 border border-red-500/20"><i class="fa-solid fa-xmark"></i> Cancelled</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-16 px-6">
+                        <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-regular fa-calendar-xmark text-2xl text-gray-600"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">No interviews scheduled</h4>
+                        <p class="text-gray-500 text-sm max-w-sm mx-auto">We are reviewing your application and will notify you once an interviewer is assigned.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if profile.score %}
+            <div class="premium-card p-6 border border-white/5 bg-gradient-to-br from-[#050505] to-[#111827] relative overflow-hidden group">
+                <div class="absolute -right-8 -top-8 text-white/5 text-8xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-award"></i></div>
+                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Final Result</h4>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">{{ profile.score }}</span>
+                    <span class="text-xl text-gray-600 font-medium">/ 100</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if offers %}
+            <div class="mt-8">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-envelope-open-text text-purple-500"></i> Job Offers & Decisions</h3>
+                <div class="space-y-4">
+                    {% for offer in offers %}
+                    <div class="premium-card p-6 border {% if offer.outcome == 'HIRED' %}border-emerald-500/30 bg-emerald-500/5{% elif offer.outcome == 'REJECTED' %}border-red-500/30 bg-red-500/5{% else %}border-purple-500/30 bg-purple-500/5{% endif %} relative overflow-hidden">
+                        
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-white">{{ offer.company.company_name }}</h4>
+                                <p class="text-xs text-gray-400 mt-1">Status updated: {{ offer.unlocked_at|date:"M d, Y" }}</p>
+                            </div>
+                            {% if offer.outcome == 'HIRED' %}
+                                <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Hired</span>
+                            {% elif offer.outcome == 'REJECTED' %}
+                                <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Rejected</span>
+                            {% else %}
+                                <span class="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Offer Extended</span>
+                            {% endif %}
+                        </div>
+
+                        {% if offer.offer_amount %}
+                        <div class="mb-4">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Offer CTC</span>
+                            <div class="text-2xl font-extrabold text-white">₹{{ offer.offer_amount|floatformat:0 }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if offer.offer_details %}
+                        <div class="bg-black/40 border border-white/5 rounded-lg p-4 mt-2">
+                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Offer Details & Perks</span>
+                            <p class="text-sm text-gray-300 whitespace-pre-line">{{ offer.offer_details }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if offer.outcome == 'OFFERED' %}
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <p class="text-xs text-gray-400 italic">The company will contact you directly via email or phone to proceed with onboarding!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% include 'candidates/sidebar.html' %}
+    </div>
+</div>
+{% endblock %}

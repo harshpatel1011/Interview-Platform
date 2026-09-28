@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Company Dashboard</h2>
+            <p class="text-gray-400 mt-1 text-lg">Manage your unlocked candidates and direct hires.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {% include 'companies/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            {% if not company.is_verified %}
+            <div class="glass-panel p-8 rounded-2xl border border-yellow-500/20 text-center shadow-2xl bg-yellow-500/5">
+                <div class="text-5xl text-yellow-500/50 mb-4"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <h3 class="text-2xl font-bold text-white mb-2">Account Verification Pending</h3>
+                <p class="text-gray-400 max-w-lg mx-auto">Your company profile is currently being reviewed by our administration team. Once approved, you'll gain full access to the Candidate Marketplace and be able to unlock candidate profiles.</p>
+            </div>
+            {% else %}
+            
+            <!-- Job Posts Section -->
+            <div class="flex justify-between items-center border-b border-white/10 pb-3 mt-8">
+                <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-briefcase text-blue-400 mr-2"></i> Job Posts</h3>
+                <button onclick="document.getElementById('jobPostForm').classList.toggle('hidden')" class="btn-primary text-xs py-2 px-4 rounded-lg font-bold">Post New Job</button>
+            </div>
+            
+            <div id="jobPostForm" class="hidden glass-panel p-5 rounded-xl border border-white/10 mb-6 mt-4">
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="job_post">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Job Title</label>
+                        <input type="text" name="title" required class="w-full bg-[#111] border border-white/10 rounded-lg p-2.5 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Description</label>
+                        <textarea name="description" required rows="3" class="w-full bg-[#111] border border-white/10 rounded-lg p-2.5 text-white text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Required Skills (Comma separated)</label>
+                        <input type="text" name="skills" required placeholder="e.g. Python, Django, React" class="w-full bg-[#111] border border-white/10 rounded-lg p-2.5 text-white text-sm">
+                    </div>
+                    <button type="submit" class="btn-primary w-full py-2.5 rounded-lg font-bold text-sm">Create Job Post</button>
+                </form>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 mt-4">
+                {% for job in job_posts %}
+                <div class="glass-panel p-5 rounded-xl border border-white/10 relative">
+                    <h4 class="text-white font-bold">{{ job.title }}</h4>
+                    <p class="text-xs text-gray-400 mt-1 mb-3">{{ job.description|truncatechars:100 }}</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for skill in job.required_skills.split %}
+                            <span class="text-[10px] bg-white/5 border border-white/10 text-gray-300 px-2 py-0.5 rounded">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-2 text-center text-sm text-gray-500 py-4">No active job posts.</div>
+                {% endfor %}
+            </div>
+
+            <!-- Request Custom Interview Section -->
+            <div class="flex justify-between items-center border-b border-white/10 pb-3 mt-8">
+                <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-user-plus text-purple-400 mr-2"></i> Request Platform Interview</h3>
+                <button onclick="document.getElementById('requestInterviewForm').classList.toggle('hidden')" class="btn-primary text-xs py-2 px-4 rounded-lg font-bold">Request Interview</button>
+            </div>
+            
+            <div id="requestInterviewForm" class="hidden glass-panel p-5 rounded-xl border border-white/10 mb-6 mt-4 bg-purple-500/5">
+                <p class="text-sm text-gray-400 mb-4">Have a candidate in mind? Request our expert interviewers to conduct a technical evaluation for them.</p>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="interview_request">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Candidate Email</label>
+                        <input type="email" name="candidate_email" required class="w-full bg-[#111] border border-white/10 rounded-lg p-2.5 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Target Role / Designation</label>
+                        <input type="text" name="role" required class="w-full bg-[#111] border border-white/10 rounded-lg p-2.5 text-white text-sm">
+                    </div>
+                    <button type="submit" class="bg-purple-500 hover:bg-purple-400 text-black w-full py-2.5 rounded-lg font-bold text-sm transition-colors">Submit Request</button>
+                </form>
+            </div>
+            <h3 class="text-xl font-bold text-white border-b border-white/10 pb-3 mt-8"><i class="fa-solid fa-lock-open text-emerald-400 mr-2"></i> Unlocked Candidates</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for txn in unlocked_transactions %}
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 shadow-2xl relative group">
+                        <div class="absolute top-4 right-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Unlocked</div>
+                        
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                                {{ txn.candidate.user.name|make_list|first }}
+                            </div>
+                            <div>
+                                <a href="{% url 'company_candidate_detail' txn.candidate.id %}">
+                                    <h4 class="text-lg font-bold text-white hover:text-emerald-400 transition">{{ txn.candidate.user.name }}</h4>
+                                </a>
+                                <p class="text-xs text-blue-400">{{ txn.candidate.designations }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm text-gray-300 mb-6 bg-black/30 p-4 rounded-xl border border-white/5">
+                            <div class="flex items-center gap-3"><i class="fa-regular fa-envelope text-gray-500 w-4"></i> {{ txn.candidate.user.email }}</div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-phone text-gray-500 w-4"></i> {{ txn.candidate.phone|default:"Not provided" }}</div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3"><i class="fa-solid fa-star text-yellow-500 w-4"></i> <span class="font-bold text-white">{{ txn.candidate.score }} / 100</span> Score</div>
+                                {% if txn.candidate.latest_interview and txn.candidate.latest_interview.status == 'COMPLETED' %}
+                                <a href="{% url 'interview_detail' txn.candidate.latest_interview.id %}" class="text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-2 py-1 rounded border border-blue-500/30 transition uppercase font-bold tracking-wider">
+                                    <i class="fa-solid fa-chart-pie mr-1"></i> View Scores
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3 mb-4">
+                            {% if txn.candidate.resume %}
+                            <a href="{{ txn.candidate.resume.url }}" target="_blank" class="flex-1 text-center bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-2 rounded-lg transition text-xs">
+                                <i class="fa-regular fa-file-pdf text-red-400"></i> Resume
+                            </a>
+                            {% endif %}
+                            <a href="mailto:{{ txn.candidate.user.email }}" class="flex-1 text-center bg-primary hover:bg-primaryHover text-black font-bold py-2 rounded-lg transition text-xs">
+                                <i class="fa-regular fa-paper-plane"></i> Contact
+                            </a>
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                            {% if txn.candidate.status == 'HIRED' and txn.outcome != 'HIRED' %}
+                                <span class="text-xs font-bold text-gray-400 bg-gray-500/10 border border-gray-500/20 px-3 py-1.5 rounded-lg flex items-center justify-center w-full gap-2"><i class="fa-solid fa-lock"></i> Hired by Another Company</span>
+                            {% elif txn.outcome == 'HIRED' or txn.candidate.status == 'HIRED' %}
+                                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center justify-center w-full gap-2"><i class="fa-solid fa-check-circle"></i> Candidate Hired</span>
+                            {% elif txn.outcome == 'REJECTED' %}
+                                <span class="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg flex items-center justify-center w-full gap-2"><i class="fa-solid fa-times-circle"></i> Candidate Rejected</span>
+                            {% else %}
+                                {% if txn.outcome == 'OFFERED' and txn.candidate.status == 'OFFERED' %}
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Offer Extended</span>
+                                        <span class="text-sm font-extrabold text-white">₹{{ txn.offer_amount|floatformat:0 }}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-xs font-bold text-gray-400">Decision:</span>
+                                {% endif %}
+                                
+                                <div class="flex gap-2">
+                                    {% if txn.outcome != 'OFFERED' or txn.candidate.status != 'OFFERED' %}
+                                        <a href="{% url 'company_extend_offer' txn.id %}" class="bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 border border-purple-500/30 text-[10px] px-3 py-1.5 rounded transition font-bold uppercase tracking-wider inline-flex items-center">Offer</a>
+                                    {% endif %}
+                                    <a href="{% url 'company_hire_candidate' txn.id %}" class="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/30 text-[10px] px-3 py-1.5 rounded transition font-bold uppercase tracking-wider inline-flex items-center">Hire</a>
+                                    <form method="post" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form_type" value="update_outcome">
+                                        <input type="hidden" name="transaction_id" value="{{ txn.id }}">
+                                        <input type="hidden" name="outcome" value="REJECTED">
+                                        <button type="submit" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 text-[10px] px-3 py-1.5 rounded transition font-bold uppercase tracking-wider">Reject</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="md:col-span-2 text-center py-16 glass-panel rounded-2xl border border-white/10">
+                        <div class="text-5xl text-gray-600 mb-4"><i class="fa-solid fa-store-slash"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">No Unlocked Candidates Yet</h3>
+                        <p class="text-gray-400 mb-6">Browse the Candidate Marketplace to find your next hire.</p>
+                        <a href="{% url 'company_marketplace' %}" class="btn-primary py-3 px-6 rounded-xl font-bold inline-flex items-center gap-2">
+                            Go to Marketplace <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

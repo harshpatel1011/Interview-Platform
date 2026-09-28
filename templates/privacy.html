@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-12 mb-24 animate-slide-up">
+    <div class="mb-10 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">Privacy Policy</h1>
+        <p class="text-gray-400">Last updated: {{ now|date:"F j, Y"|default:"September 22, 2026" }}</p>
+    </div>
+    
+    <div class="premium-card p-10 border border-white/5 bg-[#050505] text-gray-300 space-y-8 leading-relaxed">
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">1. Information We Collect</h2>
+            <p class="mb-4">At TechPlus, we collect information that you provide directly to us when you register for an account, participate in technical interviews, or communicate with our support team. This includes:</p>
+            <ul class="list-disc pl-6 space-y-2 text-gray-400">
+                <li><strong>Account Information:</strong> Name, email address, role (Candidate, Interviewer, or Management), and encrypted passwords.</li>
+                <li><strong>Profile Data:</strong> Resumes, CVs, department assignments, and job application history.</li>
+                <li><strong>Interview Content:</strong> Code written during coding assessments, audio and video recordings (if opted-in), chat transcripts, and evaluation scores or feedback.</li>
+                <li><strong>Usage Data:</strong> IP addresses, browser types, log data, and interaction metrics on our platform.</li>
+            </ul>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">2. How We Use Your Information</h2>
+            <p class="mb-4">We strictly use the collected data to facilitate and improve the hiring process. Specifically, we use it to:</p>
+            <ul class="list-disc pl-6 space-y-2 text-gray-400">
+                <li>Create and manage your user account.</li>
+                <li>Schedule and host secure video conferencing rooms via Jitsi integration.</li>
+                <li>Share candidate profiles, resumes, and interview feedback with authorized Management and Interviewer personnel.</li>
+                <li>Analyze platform performance and troubleshoot technical issues.</li>
+                <li>Send automated email notifications regarding upcoming interviews or account changes.</li>
+            </ul>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">3. Data Sharing and Disclosure</h2>
+            <p>We do not sell your personal data. We only share information in the following circumstances:</p>
+            <ul class="list-disc pl-6 space-y-2 text-gray-400 mt-4">
+                <li><strong>With Employers/Management:</strong> If you are a candidate, your profile, resume, and interview results are shared with the hiring company managing the pipeline.</li>
+                <li><strong>Service Providers:</strong> We use trusted third-party services (like AWS for hosting and Jitsi for video) who are strictly bound by confidentiality agreements.</li>
+                <li><strong>Legal Compliance:</strong> If required by law, subpoena, or other legal processes.</li>
+            </ul>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">4. Data Security</h2>
+            <p>We implement enterprise-grade security measures designed to protect your personal information. Video calls are encrypted in transit. Passwords are cryptographically hashed using PBKDF2 algorithms. However, no internet transmission is 100% secure, and we cannot guarantee absolute security.</p>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">5. Your Rights and Choices</h2>
+            <p class="mb-4">Depending on your jurisdiction (e.g., GDPR, CCPA), you may have the following rights:</p>
+            <ul class="list-disc pl-6 space-y-2 text-gray-400">
+                <li>The right to access the personal data we hold about you.</li>
+                <li>The right to rectify inaccurate data.</li>
+                <li>The right to erase your data (the "Right to be Forgotten") using the Account Deletion tool in your dashboard.</li>
+                <li>The right to restrict or object to our processing of your data.</li>
+            </ul>
+        </section>
+        
+        <section>
+            <h2 class="text-2xl font-bold text-white mb-4">6. Contact Us</h2>
+            <p>If you have questions or concerns about this Privacy Policy, please contact our Data Protection Officer at <strong>privacy@techplus.io</strong>.</p>
+        </section>
+    </div>
+</div>
+{% endblock %}

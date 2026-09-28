@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Extend Offer</h2>
+            <p class="text-gray-400 mt-1 text-lg">Propose terms to {{ txn.candidate.user.name }}</p>
+        </div>
+        <a href="{% url 'company_dashboard' %}" class="bg-white/10 text-white px-4 py-2 rounded-lg text-sm hover:bg-white/20 transition">Back to Dashboard</a>
+    </div>
+
+    <div class="glass-panel p-8 rounded-2xl border border-purple-500/30 shadow-2xl bg-purple-500/5 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-500 rounded-full blur-3xl opacity-10"></div>
+        
+        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                {{ txn.candidate.user.name|make_list|first|upper }}
+            </div>
+            <div>
+                <h4 class="text-2xl font-bold text-white">{{ txn.candidate.user.name }}</h4>
+                <p class="text-sm text-blue-400">{{ txn.candidate.designations }} • Score: {{ txn.candidate.score }}/100</p>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Offer Amount (CTC in INR)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                    <input type="number" name="amount" required step="10000" min="100000" placeholder="e.g. 1200000" class="w-full bg-[#111] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white text-lg font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition">
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Enter the annual Cost To Company (CTC) figure.</p>
+            </div>
+            
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Offer Details / Perks</label>
+                <textarea name="details" rows="4" placeholder="Mention joining bonuses, equity, remote work policy, health insurance, etc." class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition"></textarea>
+            </div>
+            
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-purple-500/25 transition transform hover:-translate-y-0.5">
+                    Send Official Offer <i class="fa-solid fa-paper-plane ml-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

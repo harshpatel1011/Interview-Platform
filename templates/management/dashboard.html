@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block footer %}{% endblock %}
+{% block header_nav %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto animate-slide-up mt-8">
+    <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Management Dashboard</h2>
+            <p class="text-gray-400 mt-1 text-lg">Orchestrate candidates, assign interviewers, and review results.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Sidebar -->
+        {% include 'management/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="md:col-span-3 space-y-6">
+            <style>
+                .status-tab.active { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+                .kanban-card { background: #111111; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; transition: border-color 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+            </style>
+            
+            <!-- Advanced Analytics Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Pipeline Chart -->
+                <div class="glass-panel p-5 rounded-2xl border border-white/10 shadow-2xl flex flex-col justify-between">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-filter text-primary"></i> Pipeline Health</h3>
+                    <div class="h-[150px] w-full flex items-center justify-center">
+                        <canvas id="pipelineChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Evaluation Stats -->
+                <div class="glass-panel p-5 rounded-2xl border border-white/10 shadow-2xl flex flex-col justify-between">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-accent"></i> Evaluation Results</h3>
+                    
+                    <div class="flex flex-row items-center justify-between mb-4 px-2">
+                        <div class="text-center">
+                            <span class="block text-4xl font-extrabold text-emerald-400">{{ pass_rate }}%</span>
+                            <span class="text-xs text-gray-400 uppercase font-bold tracking-widest mt-1 block">Pass Rate</span>
+                        </div>
+                        <div class="h-16 w-px bg-white/10 mx-4"></div>
+                        <div class="text-center">
+                            <span class="block text-4xl font-extrabold text-blue-400">{{ avg_score }}</span>
+                            <span class="text-xs text-gray-400 uppercase font-bold tracking-widest mt-1 block">Avg Score</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 w-full h-3 rounded-full overflow-hidden bg-white/5">
+                        <div class="bg-emerald-500 h-full" style="width: calc({{ passed }} / {{ total_evaluated|default:1 }} * 100%);"></div>
+                        <div class="bg-red-500 h-full" style="width: calc({{ failed }} / {{ total_evaluated|default:1 }} * 100%);"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2">
+                        <span>{{ passed }} Passed</span>
+                        <span>{{ failed }} Failed</span>
+                    </div>
+                </div>
+
+                <!-- Revenue Stats -->
+                <div class="glass-panel p-5 rounded-2xl border border-white/10 shadow-2xl flex flex-col justify-center items-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex justify-center items-center text-3xl mb-4">
+                        <i class="fa-solid fa-money-bill-trend-up"></i>
+                    </div>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Marketplace Revenue</span>
+                    <span class="text-4xl font-extrabold text-emerald-400">₹{{ total_revenue|floatformat:0 }}</span>
+                </div>
+            </div>
+            
+            <div class="space-y-10 min-h-[60vh]">
+                <!-- PENDING Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-inbox text-gray-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Applied</h2>
+                        <span class="bg-white/10 px-3 py-1 rounded-full text-xs font-bold text-white ml-2 count-badge" id="count-PENDING">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="PENDING"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- ASSIGNED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-video text-blue-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Interviewing</h2>
+                        <span class="bg-blue-500/20 px-3 py-1 rounded-full text-xs font-bold text-blue-400 ml-2 count-badge" id="count-ASSIGNED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="ASSIGNED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- INTERVIEWED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-clipboard-check text-yellow-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Evaluated</h2>
+                        <span class="bg-yellow-500/20 px-3 py-1 rounded-full text-xs font-bold text-yellow-400 ml-2 count-badge" id="count-INTERVIEWED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="INTERVIEWED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- OFFERED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-file-contract text-purple-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Offered</h2>
+                        <span class="bg-purple-500/20 px-3 py-1 rounded-full text-xs font-bold text-purple-400 ml-2 count-badge" id="count-OFFERED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="OFFERED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- HIRED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-handshake text-green-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Hired</h2>
+                        <span class="bg-green-500/20 px-3 py-1 rounded-full text-xs font-bold text-green-400 ml-2 count-badge" id="count-HIRED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="HIRED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+
+                <!-- REJECTED Section -->
+                <div class="status-section">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                        <i class="fa-solid fa-ban text-red-500 text-xl w-6"></i>
+                        <h2 class="font-bold text-white text-xl tracking-wide">Rejected</h2>
+                        <span class="bg-red-500/20 px-3 py-1 rounded-full text-xs font-bold text-red-400 ml-2 count-badge" id="count-REJECTED">0</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 status-panel" data-status="REJECTED"></div>
+                    <div class="empty-state hidden p-8 text-center border border-dashed border-white/10 rounded-xl text-gray-500 mt-2 bg-white/5">No candidates in this stage.</div>
+                </div>
+            </div>
+
+            <!-- Preload Cards (Hidden, moved via JS) -->
+            <div id="card-data" class="hidden">
+                {% for candidate in candidates %}
+                <div class="kanban-card flex flex-col" data-status="{{ candidate.status }}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-sm text-gray-300">
+                                {{ candidate.user.name|make_list|first|upper }}
+                            </div>
+                            <div>
+                                <a href="{% url 'management_candidate_detail' candidate.id %}" class="font-bold text-white text-sm hover:text-blue-400 transition">{{ candidate.user.name }}</a>
+                                {% if candidate.designations %}
+                                <div class="text-[10px] text-blue-400/80 font-bold uppercase tracking-wider mt-0.5">{{ candidate.designations }}</div>
+                                {% else %}
+                                <div class="text-xs text-gray-500">{{ candidate.user.email }}</div>
+                                {% endif %}
+                                {% if candidate.status == 'PENDING' and candidate.interviews.count > 0 %}
+                                <div class="mt-1 text-[9px] bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded inline-block font-bold uppercase tracking-wider">
+                                    Re-evaluation Request
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-gray-500 mb-4 mt-4">
+                        <span>Applied: {{ candidate.applied_date|date:"M d, Y" }}</span>
+                        {% if candidate.latest_interview and candidate.latest_interview.score %}
+                        <span class="font-bold text-green-400" title="Latest Interview Score"><i class="fa-solid fa-star text-green-500/50 mr-1"></i>{{ candidate.latest_interview.score }}/100</span>
+                        {% elif candidate.score %}
+                        <span class="font-bold text-green-400"><i class="fa-solid fa-star text-green-500/50 mr-1"></i>{{ candidate.score }}/100</span>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-white/5">
+                        {% if candidate.resume %}
+                        <a href="{{ candidate.resume.url }}" target="_blank" class="flex-1 py-2 text-center bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded border border-white/5 transition-all text-xs font-bold" title="View Resume">
+                            <i class="fa-regular fa-file-pdf mr-1"></i> Resume
+                        </a>
+                        {% else %}
+                        <span class="flex-1 py-2 text-center bg-white/5 text-gray-600 rounded border border-white/5 text-xs font-bold" title="No Resume Uploaded">
+                            <i class="fa-regular fa-file-pdf mr-1"></i> No Resume
+                        </span>
+                        {% endif %}
+                        <a href="{% url 'management_assign' candidate.id %}" class="flex-1 py-2 text-center bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white rounded border border-blue-500/20 transition-all text-xs font-bold" title="Assign Interviewer">
+                            <i class="fa-solid fa-user-plus mr-1"></i> Assign
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const cardDataContainer = document.getElementById('card-data');
+                    const cards = Array.from(cardDataContainer.children);
+                    
+                    // Populate cards into panels
+                    cards.forEach(card => {
+                        const status = card.getAttribute('data-status');
+                        const panel = document.querySelector(`.status-panel[data-status="${status}"]`);
+                        if (panel) panel.appendChild(card);
+                    });
+                    
+                    // Update counts and hide empty sections
+                    const statuses = ['PENDING', 'ASSIGNED', 'INTERVIEWED', 'OFFERED', 'HIRED', 'REJECTED'];
+                    statuses.forEach(status => {
+                        const panel = document.querySelector(`.status-panel[data-status="${status}"]`);
+                        const count = panel ? panel.children.length : 0;
+                        document.getElementById(`count-${status}`).textContent = count;
+                        
+                        const section = panel.closest('.status-section');
+                        
+                        // Hide the empty state boxes entirely
+                        const emptyState = section.querySelector('.empty-state');
+                        if(emptyState) {
+                            emptyState.style.display = 'none';
+                        }
+                        
+                        // If no candidates, hide the whole section to keep it clean
+                        if (count === 0) {
+                            section.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
+            
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ctx = document.getElementById('pipelineChart').getContext('2d');
+                    
+                    // Use CSS variables or raw hex for colors
+                    Chart.defaults.color = '#9ca3af';
+                    Chart.defaults.font.family = "'Inter', sans-serif";
+                    
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Applied', 'Assigned', 'Interviewed', 'Hired', 'Rejected'],
+                            datasets: [{
+                                data: [
+                                    {{ pipeline_stats.PENDING }},
+                                    {{ pipeline_stats.ASSIGNED }},
+                                    {{ pipeline_stats.INTERVIEWED }},
+                                    {{ pipeline_stats.HIRED }},
+                                    {{ pipeline_stats.REJECTED }}
+                                ],
+                                backgroundColor: [
+                                    '#6b7280', // Gray
+                                    '#3b82f6', // Blue
+                                    '#8b5cf6', // Purple
+                                    '#10b981', // Green
+                                    '#ef4444'  // Red
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#050505',
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        padding: 15,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
+{% endblock %}
