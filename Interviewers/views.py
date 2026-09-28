@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Interview, InterviewerProfile
@@ -18,11 +19,14 @@ def register(request):
         try:
             user = CustomUser.objects.create_user(email=email, name=name, password=password, role='INTERVIEWER')
             profile = InterviewerProfile.objects.create(user=user, department=department)
+            
+            from Core.email_manager import send_welcome_interviewer
+            send_welcome_interviewer(user)
+            
             login(request, user)
             return redirect('interviewer_dashboard')
         except Exception as e:
-            from django.contrib import messages
-            messages.error(request, f"Registration failed: {str(e)}")
+                        messages.error(request, f"Registration failed: {str(e)}")
             
     return render(request, 'registration/interviewer_register.html')
 
@@ -67,7 +71,6 @@ def profile_settings(request):
             request.user.name = form.cleaned_data['name']
             request.user.save()
             form.save()
-            from django.contrib import messages
             messages.success(request, 'Profile updated successfully!')
             return redirect('interviewer_profile')
     else:
@@ -110,6 +113,9 @@ def video_room(request, meeting_id):
                 candidate.feedback = interview.feedback
                 candidate.status = 'INTERVIEWED'
                 candidate.save()
+                
+                from Core.email_manager import send_interview_results
+                send_interview_results(candidate, interview.score)
                 
                 return redirect('interviewer_dashboard')
         else:
@@ -155,10 +161,8 @@ def earnings(request):
         try:
             amount = float(amount)
             if amount < 500:
-                from django.contrib import messages
                 messages.error(request, "Minimum withdrawal amount is ₹500")
             elif amount > profile.available_balance:
-                from django.contrib import messages
                 messages.error(request, "Amount exceeds available balance")
             else:
                 from .models import WithdrawalRequest
@@ -168,11 +172,12 @@ def earnings(request):
                     bank_details=bank_details,
                     status='PAID'
                 )
-                from django.contrib import messages
+                from Core.email_manager import send_payout_processed
+                send_payout_processed(request.user, amount)
+                
                 messages.success(request, "Withdrawal processed successfully!")
                 return redirect('interviewer_earnings')
         except ValueError:
-            from django.contrib import messages
             messages.error(request, "Invalid amount")
             
     return render(request, 'interviewers/earnings.html', {
@@ -199,7 +204,6 @@ def interview_detail(request, id):
             has_access = True
         
     if not has_access:
-        from django.contrib import messages
         messages.error(request, "You do not have permission to view this interview.")
         return redirect('home')
         

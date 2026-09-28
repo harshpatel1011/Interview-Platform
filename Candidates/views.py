@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,9 @@ def register(request):
             
             # Create profile
             CandidateProfile.objects.create(user=user)
+            
+            from Core.email_manager import send_welcome_candidate
+            send_welcome_candidate(user)
             
             login(request, user)
             return redirect('candidate_dashboard')
@@ -62,7 +66,6 @@ def profile_settings(request):
             request.user.name = form.cleaned_data['name']
             request.user.save()
             form.save()
-            from django.contrib import messages
             messages.success(request, 'Profile updated successfully!')
             return redirect('candidate_profile')
     else:
@@ -88,7 +91,6 @@ def delete_account(request):
         from django.contrib.auth import logout
         logout(request)
         user.delete()
-        from django.contrib import messages
         messages.success(request, 'Your account has been successfully deleted.')
         return redirect('home')
     return redirect('candidate_profile')
@@ -98,7 +100,6 @@ def change_password(request):
     if request.method == 'POST' and request.user.role == 'CANDIDATE':
         from django.contrib.auth.forms import PasswordChangeForm
         from django.contrib.auth import update_session_auth_hash
-        from django.contrib import messages
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
@@ -135,6 +136,10 @@ def apply_job(request, job_id):
         profile = request.user.candidate_profile
         job = JobPost.objects.get(id=job_id)
         
+        if not profile.resume:
+            messages.error(request, "You must upload a resume in your Profile Settings before applying to jobs or requesting an interview.")
+            return redirect('candidate_job_board')
+            
         # Check if they need to pay
         if profile.interviews.count() > 0:
             request.session['pending_interview_action'] = {'type': 'job', 'job_id': job_id}
@@ -147,7 +152,10 @@ def apply_job(request, job_id):
             requester='CANDIDATE',
             defaults={'status': 'PENDING'}
         )
-        from django.contrib import messages
+        
+        from Core.email_manager import send_application_received
+        send_application_received(profile, job)
+        
         messages.success(request, f"Successfully applied for {job.title} at {job.company.company_name}!")
         
     return redirect('candidate_job_board')
@@ -159,8 +167,7 @@ def cancel_interview(request, interview_id):
     if request.method == 'POST':
         from django.shortcuts import get_object_or_404
         from Interviewers.models import Interview
-        from django.contrib import messages
-        
+                
         interview = get_object_or_404(Interview, id=interview_id, candidate=request.user.candidate_profile)
         
         if interview.status == 'SCHEDULED':
@@ -189,11 +196,9 @@ def cancel_request(request):
             # Revert to INTERVIEWED if they had previous, else REJECTED
             if profile.interviews.filter(status='COMPLETED').exists():
                 profile.status = 'INTERVIEWED'
-                from django.contrib import messages
                 messages.success(request, "Your re-evaluation request has been cancelled.")
             else:
                 profile.status = 'REJECTED'
-                from django.contrib import messages
                 messages.success(request, "Your initial interview request has been withdrawn.")
             profile.save()
             
@@ -206,6 +211,10 @@ def request_interview(request):
     profile = request.user.candidate_profile
     
     if request.method == 'POST':
+        if not profile.resume:
+            messages.error(request, "You must upload a resume in your Profile Settings before applying to jobs or requesting an interview.")
+            return redirect('candidate_request_interview')
+            
         if profile.status in ['INTERVIEWED', 'REJECTED']:
             if profile.interviews.count() > 0:
                 request.session['pending_interview_action'] = {'type': 'reevaluation'}
@@ -240,8 +249,7 @@ def purchase_interview_success(request):
             return redirect('candidate_dashboard')
             
         profile = request.user.candidate_profile
-        from django.contrib import messages
-        
+                
         if action['type'] == 'job':
             job = JobPost.objects.get(id=action['job_id'])
             InterviewRequest.objects.get_or_create(
@@ -251,6 +259,10 @@ def purchase_interview_success(request):
                 requester='CANDIDATE',
                 defaults={'status': 'PENDING'}
             )
+            
+            from Core.email_manager import send_application_received
+            send_application_received(profile, job)
+            
             messages.success(request, f"Payment successful! Successfully applied for {job.title}.")
             del request.session['pending_interview_action']
             return redirect('candidate_job_board')

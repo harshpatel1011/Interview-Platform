@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    </head>
+<body style='font-family:"Helvetica Neue", Helvetica, Arial, sans-serif; background-color:#000; color:#888; margin:0; padding:40px 20px' bgcolor="#000000">
+    <div class="container" style="max-width:600px; margin:0 auto; background-color:#050505; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0, 0, 0, 0.5); border:1px solid #222" bgcolor="#050505">
+        <div class="header" style="background-color:#000; padding:30px 24px; text-align:center; border-bottom:1px solid #111; position:relative; overflow:hidden" bgcolor="#000000" align="center">
+            <div class="glow" style="position:absolute; top:-50px; left:50%; transform:translatex(-50%); width:200px; height:100px; background:radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(0, 0, 0, 0) 70%); border-radius:50%; pointer-events:none" width="200" height="100"></div>
+            <div class="logo" style="color:#fff; font-size:28px; font-weight:800; text-decoration:none; display:inline-block; letter-spacing:-0.5px">
+                <div style="background-color: #ffffff; color: #000000; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; margin-right: 10px; vertical-align: middle;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M 28 30 L 12 50 L 28 70" /><path d="M 72 30 L 88 50 L 72 70" /><path d="M 50 32 L 50 68" /><path d="M 32 50 L 68 50" /></svg></div>TechPlus
+            </div>
+        </div>
+        <div class="content" style="padding:40px">
+            <div class="title" style="font-size:22px; font-weight:700; margin-bottom:24px; color:#fff">Interview Rescheduled</div>
+            <p style="font-size: 16px; line-height: 1.7; color: #888888; margin-bottom: 32px;">
+    Hello {{ user.name }}, your upcoming interview on TechPlus has been rescheduled.
+</p>
+<div class="details-box" style="background-color:#111; border:1px solid #222; border-radius:12px; padding:24px; margin-bottom:32px" bgcolor="#111111">
+    <div class="detail-row" style="margin-bottom:16px; font-size:15px">
+        <span class="detail-label" style="font-weight:700; color:#666; width:120px; display:inline-block; text-transform:uppercase; font-size:12px; letter-spacing:1px" width="120">New Date</span>
+        <span class="detail-value" style="font-weight:600; color:#F59E0B; font-size:16px">{{ new_date }}</span>
+    </div>
+    <div class="detail-row" style="margin-bottom:0; font-size:15px">
+        <span class="detail-label" style="font-weight:700; color:#666; width:120px; display:inline-block; text-transform:uppercase; font-size:12px; letter-spacing:1px" width="120">New Time</span>
+        <span class="detail-value" style="font-weight:600; color:#F59E0B; font-size:16px">{{ new_time }}</span>
+    </div>
+</div>
+<p style="font-size: 16px; line-height: 1.7; color: #888888; margin-bottom: 32px;">
+    Please review your calendar and ensure you are available at the new time.
+</p>
+<a href="{{ domain }}{% url 'home' %}" class="btn" style="display:inline-block; background-color:#F59E0B; color:#000; text-decoration:none; font-weight:800; padding:16px 28px; border-radius:10px; text-align:center; width:100%; box-sizing:border-box; font-size:16px; transition:background-color 0.2s" bgcolor="#F59E0B" align="center" width="100%">Go to Dashboard &rarr;</a>
+        </div>
+        <div class="footer" style="padding:24px; text-align:center; font-size:13px; color:#444; border-top:1px solid #111; background-color:#000" align="center" bgcolor="#000000">
+            &copy; {% now "Y" %} TechPlus. All rights reserved.<br>
+            Secure Technical Hiring Platform.
+        </div>
+    </div>
+</body>
+</html>

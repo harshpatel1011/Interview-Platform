@@ -83,6 +83,15 @@ def password_reset_confirm(request):
             if 'reset_email' in request.session:
                 del request.session['reset_email']
                 
+            # Send password reset success email
+            from Core.email_manager import send_html_email
+            send_html_email(
+                "Password Reset Successfully",
+                "emails/password_reset_success.html",
+                {'user': user},
+                [user.email]
+            )
+                
             messages.success(request, "Your password has been successfully reset. Please log in.")
             return redirect('login')
         else:

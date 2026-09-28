@@ -2,19 +2,18 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto animate-slide-up mt-8">
-    <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
-        <div>
-            <h2 class="text-3xl font-extrabold text-white tracking-tight">Company Approvals</h2>
-            <p class="text-gray-400 mt-1 text-lg">Verify and manage company accounts.</p>
-        </div>
-    </div>
-
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <!-- Sidebar -->
         {% include 'management/sidebar.html' %}
 
         <!-- Main Content -->
         <div class="md:col-span-3 space-y-6">
+            <div class="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Company Approvals</h2>
+            <p class="text-gray-400 mt-1 text-lg">Verify and manage company accounts.</p>
+        </div>
+    </div>
             <div class="glass-panel p-6 rounded-2xl border border-white/10 shadow-2xl">
                 <table class="w-full text-left border-collapse">
                     <thead>

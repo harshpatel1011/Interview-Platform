@@ -9,5 +9,7 @@ urlpatterns = [
     path('transaction/<int:transaction_id>/offer/', views.extend_offer, name='company_extend_offer'),
     path('transaction/<int:transaction_id>/hire/', views.hire_candidate, name='company_hire_candidate'),
     path('candidate/<int:candidate_id>/', views.candidate_detail, name='company_candidate_detail'),
+    path('profile/', views.profile, name='company_profile'),
+    path('profile/edit/', views.profile_edit, name='company_profile_edit'),
     path('payment/callback/', views.payment_callback, name='company_payment_callback'),
 ]

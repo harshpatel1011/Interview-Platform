@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from Candidates.models import CandidateProfile
 from Interviewers.models import Interview
 from .forms import AssignInterviewerForm
@@ -56,6 +57,10 @@ def assign_interviewer(request, candidate_id):
     from django.shortcuts import get_object_or_404
     candidate = get_object_or_404(CandidateProfile, id=candidate_id)
     
+    if not candidate.resume:
+        messages.error(request, "Cannot schedule interview: The candidate has not uploaded a resume yet.")
+        return redirect('management_dashboard')
+    
     if request.method == 'POST':
         form = AssignInterviewerForm(request.POST, candidate=candidate)
         if form.is_valid():
@@ -86,8 +91,6 @@ def assign_interviewer(request, candidate_id):
         form = AssignInterviewerForm(candidate=candidate)
         
     return render(request, 'management/assign.html', {'form': form, 'candidate': candidate})
-
-from django.contrib import messages
 
 from Interviewers.models import InterviewerProfile
 from django.contrib.auth import get_user_model
@@ -209,6 +212,10 @@ def interviewer_verify(request, id):
         if action == 'verify':
             profile.is_verified = True
             profile.save()
+            
+            from Core.email_manager import send_account_approved
+            send_account_approved(user)
+            
             messages.success(request, f"{user.name} has been APPROVED.")
         elif action == 'revoke':
             profile.is_verified = False
@@ -391,6 +398,10 @@ def company_verify(request, id):
         if action == 'verify':
             company.is_verified = True
             company.save()
+            
+            from Core.email_manager import send_account_approved
+            send_account_approved(company.user)
+            
             messages.success(request, f"{company.company_name} has been VERIFIED.")
         elif action == 'revoke':
             company.is_verified = False

@@ -18,10 +18,13 @@ def register(request):
             user.role = 'COMPANY'
             user.save()
             
-            CompanyProfile.objects.create(
+            profile = CompanyProfile.objects.create(
                 user=user,
                 company_name=form.cleaned_data['company_name']
             )
+            
+            from Core.email_manager import send_welcome_company
+            send_welcome_company(profile)
             
             login(request, user)
             return redirect('company_dashboard')
@@ -146,6 +149,9 @@ def extend_offer(request, transaction_id):
                 candidate.status = 'OFFERED'
                 candidate.save()
                 
+            from Core.email_manager import send_offer_received
+            send_offer_received(candidate, company, amount)
+                
             messages.success(request, f"Offer of ₹{amount} extended to {candidate.user.name}!")
             return redirect('company_dashboard')
             
@@ -176,6 +182,9 @@ def hire_candidate(request, transaction_id):
                 candidate.status = 'HIRED'
                 candidate.save()
                     
+                from Core.email_manager import send_candidate_hired
+                send_candidate_hired(candidate, company, monthly_fee)
+                
                 messages.success(request, f"Candidate {candidate.user.name} marked as HIRED! A platform fee of ₹{monthly_fee:.2f} (1 month salary) has been invoiced.")
                 return redirect('company_dashboard')
             except ValueError:
@@ -262,3 +271,28 @@ def candidate_detail(request, candidate_id):
         'candidate': candidate,
         'is_unlocked': is_unlocked
     })
+
+@login_required
+def profile(request):
+    if request.user.role != 'COMPANY':
+        return redirect('home')
+    return render(request, 'companies/profile.html', {'company': request.user.company_profile})
+
+@login_required
+def profile_edit(request):
+    if request.user.role != 'COMPANY':
+        return redirect('home')
+        
+    company = request.user.company_profile
+    from .forms import CompanyProfileEditForm
+    
+    if request.method == 'POST':
+        form = CompanyProfileEditForm(request.POST, instance=company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('company_profile')
+    else:
+        form = CompanyProfileEditForm(instance=company)
+        
+    return render(request, 'companies/profile_edit.html', {'form': form, 'company': company})
