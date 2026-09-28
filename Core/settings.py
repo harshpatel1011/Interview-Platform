@@ -109,6 +109,7 @@ STORAGES = {
     },
 }
 
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 WHITENOISE_MANIFEST_STRICT = False
 
 # Only enforce SSL in production
