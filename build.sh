@@ -12,4 +12,7 @@ python manage.py collectstatic --no-input --clear
 echo "==> Running database migrations..."
 python manage.py migrate
 
+echo "==> Creating superuser (if not exists)..."
+python manage.py createsuperuser --noinput || echo "Superuser already exists, skipping"
+
 echo "==> Build complete!"
