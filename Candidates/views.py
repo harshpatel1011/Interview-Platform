@@ -337,7 +337,7 @@ def ai_practice_api(request, session_id):
                     return JsonResponse({'response': "Error: GEMINI_API_KEY environment variable is not set."})
                 
                 genai.configure(api_key=api_key)
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                model = genai.GenerativeModel(os.environ.get('GEMINI_MODEL', 'gemini-3.5-flash'))
                 
                 history = []
                 if transcript:
@@ -368,7 +368,7 @@ def ai_practice_api(request, session_id):
                 api_key = os.environ.get('GEMINI_API_KEY')
                 if api_key:
                     genai.configure(api_key=api_key)
-                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    model = genai.GenerativeModel(os.environ.get('GEMINI_MODEL', 'gemini-3.5-flash'))
                     prompt = f"Based on this interview transcript, provide a score (out of 100) and constructive feedback for the candidate. Transcript: {session.transcript}\n\nFormat your response exactly like this:\nScore: [number]\nFeedback: [text]"
                     response = model.generate_content(prompt)
                     text = response.text
