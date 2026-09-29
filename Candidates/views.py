@@ -318,6 +318,7 @@ def ai_practice_api(request, session_id):
         
     if request.method == 'POST':
         import json
+        import os
         from django.http import JsonResponse
         from django.utils import timezone
         
@@ -326,23 +327,71 @@ def ai_practice_api(request, session_id):
         action = data.get('action')
         
         if action == 'message':
-            # Mock AI response
-            user_msg = data.get('message', '').lower()
-            response_text = "That's an interesting point. Can you elaborate more on how you would handle potential edge cases?"
+            user_msg = data.get('message', '')
+            transcript = data.get('transcript', [])
             
-            if 'hello' in user_msg or 'hi' in user_msg:
-                response_text = "Hello! I am your AI Interviewer. Let's start. Can you tell me about a challenging project you recently worked on?"
-            elif len(user_msg) < 10:
-                response_text = "Could you provide a bit more detail?"
+            try:
+                import google.generativeai as genai
+                api_key = os.environ.get('GEMINI_API_KEY')
+                if not api_key:
+                    return JsonResponse({'response': "Error: GEMINI_API_KEY environment variable is not set."})
+                
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                
+                history = []
+                if transcript:
+                    for msg in transcript:
+                        if msg.get('sender') in ['user', 'ai']:
+                            role = "user" if msg['sender'] == 'user' else "model"
+                            history.append({"role": role, "parts": [msg['text']]})
+                
+                if not history:
+                    history = [{"role": "user", "parts": ["You are an expert technical interviewer. Start an interview with me. Ask one question at a time."]}]
+                
+                chat = model.start_chat(history=history)
+                response = chat.send_message(user_msg)
+                response_text = response.text
+                
+            except Exception as e:
+                response_text = f"An error occurred with the AI: {str(e)}"
                 
             return JsonResponse({'response': response_text})
             
         elif action == 'complete':
             import random
             session.status = 'COMPLETED'
-            session.score = random.randint(65, 95)
-            session.feedback = "Good communication skills. Demonstrated solid understanding of core concepts. Could improve on providing more specific examples when discussing problem-solving."
             session.transcript = json.dumps(data.get('transcript', []))
+            
+            try:
+                import google.generativeai as genai
+                api_key = os.environ.get('GEMINI_API_KEY')
+                if api_key:
+                    genai.configure(api_key=api_key)
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    prompt = f"Based on this interview transcript, provide a score (out of 100) and constructive feedback for the candidate. Transcript: {session.transcript}\n\nFormat your response exactly like this:\nScore: [number]\nFeedback: [text]"
+                    response = model.generate_content(prompt)
+                    text = response.text
+                    
+                    import re
+                    score_match = re.search(r'Score:\s*(\d+)', text, re.IGNORECASE)
+                    if score_match:
+                        session.score = int(score_match.group(1))
+                    else:
+                        session.score = random.randint(65, 95)
+                    
+                    feedback_match = re.search(r'Feedback:\s*(.*)', text, re.IGNORECASE | re.DOTALL)
+                    if feedback_match:
+                        session.feedback = feedback_match.group(1).strip()
+                    else:
+                        session.feedback = text
+                else:
+                    session.score = random.randint(65, 95)
+                    session.feedback = "Good communication skills. (Mock feedback because API key is missing)"
+            except Exception as e:
+                session.score = random.randint(65, 95)
+                session.feedback = f"Error generating feedback: {str(e)}"
+
             session.completed_at = timezone.now()
             session.save()
             

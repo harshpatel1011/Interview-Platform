@@ -49,3 +49,7 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         value: "TechPlus <noreply@techplus.io>"
+
+      # AI Chatbot
+      - key: GEMINI_API_KEY
+        sync: false
